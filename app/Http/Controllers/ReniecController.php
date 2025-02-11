@@ -15,7 +15,30 @@ use Illuminate\Support\Facades\Log;
 class ReniecController extends Controller
 {
 
-    public function index() {}
+    public function index()
+    {
+        try {
+            $usuarios = UserReniec::all();
+
+            $usuarios->transform(function ($user) {
+                if (!empty($user->nuDniUsuario)) {
+                    $user->nuDniUsuario = $this->decrypt($user->nuDniUsuario);
+                }
+
+                if (!empty($user->nuRucUsuario)) {
+                    $user->nuRucUsuario = $this->decrypt($user->nuRucUsuario);
+                }
+
+                return $user; // Retorna el objeto en lugar de un array
+            });
+
+            return view('reniec.index', ['usuarios' => $usuarios]);
+        } catch (\Exception $error) {
+            Log::error('Error al listar usuarios: ' . $error->getMessage());
+            return redirect()->back()->with('error', 'Error al cargar los usuarios RENIEC.');
+        }
+    }
+
     public function create() {}
     public function store(Request $request) {}
     public function show(string $id) {}
@@ -138,7 +161,7 @@ class ReniecController extends Controller
     public function editarUsuarioReniec(Request $request, $id)
     {
         $request->validate([
-            'id' => 'required|exists:user_reniec,id'
+            'id' => 'required|exists:reniec,id'
         ]);
 
         try {
@@ -151,9 +174,12 @@ class ReniecController extends Controller
             if ($request->has('nuRucUsuario')) {
                 $updates['nuRucUsuario'] = $this->encrypt($request->nuRucUsuario);
             }
-            if ($request->has('password')) {
+            
+            // Only update password if a new password is provided
+            if ($request->filled('password')) {
                 $updates['password'] = $this->encrypt($request->password);
             }
+            
             if ($request->has('estado')) {
                 $updates['estado'] = $request->estado;
             }
@@ -171,7 +197,7 @@ class ReniecController extends Controller
             Log::error('Error al actualizar usuario: ' . $error->getMessage());
             return response()->json([
                 'success' => false,
-                'message' => 'Error al actualizar el usuario RENIEC.'
+                'message' => 'Error al actualizar el usuario RENIEC: ' . $error->getMessage()
             ], 500);
         }
     }

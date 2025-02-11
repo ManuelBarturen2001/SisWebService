@@ -1,0 +1,74 @@
+.custom-modal .modal-content {
+    border: none;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.custom-modal .modal-header {
+    border-bottom: none;
+    padding: 2rem 2rem 1rem;
+    position: relative;
+}
+
+.custom-modal .modal-body {
+    padding: 1rem 2rem;
+}
+
+.custom-modal .modal-footer {
+    border-top: none;
+    padding: 1rem 2rem 2rem;
+}
+
+.custom-modal .btn-close {
+    background-color: #f8f9fa;
+    padding: 0.75rem;
+    border-radius: 50%;
+    opacity: 1;
+    transition: all 0.2s;
+}
+
+.custom-modal .btn-close:hover {
+    background-color: #e9ecef;
+    transform: rotate(90deg);
+}
+
+.support-icon-wrapper {
+    background: linear-gradient(45deg, #fec400, #e9b200);
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 1rem;
+}
+
+.contact-card {
+    background: #f8f9fa;
+    border-radius: 12px;
+    padding: 1.5rem;
+    transition: all 0.3s ease;
+    border: 1px solid #e9ecef;
+}
+
+.contact-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+}
+
+.email-link {
+    display: inline-block;
+    padding: 0.75rem 1.5rem;
+    background: linear-gradient(45deg, #2974b5, #7cd3e7);
+    color: white;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.email-link:hover {
+    background: linear-gradient(45deg, #7cd3e7, #2974b5);
+    color: white;
+    transform: translateY(-1px);
+}

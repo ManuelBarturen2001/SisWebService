@@ -13,7 +13,33 @@ use Illuminate\Support\Facades\Http;
 class MigracionesController extends Controller
 {
 
-    public function index() {}
+    public function index()
+    {
+        try {
+            $usuarios = UserMigraciones::all();
+
+            $usuarios->transform(function ($user) {
+                if (!empty($user->username)) {
+                    $user->username = $this->decrypt($user->username);
+                }
+
+                if (!empty($user->ip)) {
+                    $user->ip = $this->decrypt($user->ip);
+                }
+
+                if (!empty($user->nivelacceso)) {
+                    $user->nivelacceso = $this->decrypt($user->nivelacceso);
+                }
+                
+                return $user; // Retorna el objeto en lugar de un array
+            });
+
+            return view('migraciones.index', ['usuarios' => $usuarios]);
+        } catch (\Exception $error) {
+            Log::error('Error al listar usuarios: ' . $error->getMessage());
+            return redirect()->back()->with('error', 'Error al cargar los usuarios MIGRACIONES.');
+        }
+    }
     public function create() {}
     public function store(Request $request) {}
     public function show(string $id) {}
@@ -97,19 +123,20 @@ class MigracionesController extends Controller
 
     public function crearUsuarioMigraciones(Request $request)
     {
-        $request->validate([
-            'username' => 'required',
-            'password' => 'required',
-            'ip' => 'required',
-            'nivelacceso' => 'required'
-        ]);
-
         try {
+            $validated = $request->validate([
+                'username' => 'required',
+                'password' => 'required',
+                'ip' => 'required',
+                'nivelacceso' => 'required'
+            ]);
+
             $usuarioMigraciones = UserMigraciones::create([
-                'username' => $this->encrypt($request->username),
-                'password' => $this->encrypt($request->password),
-                'ip' => $this->encrypt($request->ip),
-                'nivelacceso' => $this->encrypt($request->nivelacceso),
+                'username' => $this->encrypt($validated['username']),
+                'password' => $this->encrypt($validated['password']),
+                'ip' => $this->encrypt($validated['ip']),
+                'nivelacceso' => $this->encrypt($validated['nivelacceso']),
+                'estado' => 1, // Asumiendo que nuevo usuario es activo por defecto
                 'created_at' => Carbon::now('America/Lima'),
                 'updated_at' => Carbon::now('America/Lima'),
             ]);
@@ -120,10 +147,10 @@ class MigracionesController extends Controller
                 'data' => $usuarioMigraciones
             ], 201);
         } catch (\Exception $error) {
-            Log::error($error);
+            Log::error('Error al crear usuario MIGRACIONES: ' . $error->getMessage());
             return response()->json([
                 'success' => false,
-                'message' => 'Error al crear el usuario MIGRACIONES.',
+                'message' => 'Error al crear el usuario MIGRACIONES: ' . $error->getMessage(),
             ], 500);
         }
     }
@@ -188,7 +215,7 @@ class MigracionesController extends Controller
     public function editarUsuarioMigraciones(Request $request, $id)
     {
         $request->validate([
-            'id' => 'required|exists:user_migraciones,id'
+            'id' => 'required|exists:migraciones,id'
         ]);
 
         try {
@@ -302,8 +329,6 @@ class MigracionesController extends Controller
                     // Personal data
                     'painacionalidad_pide' => $datosPersonales['painacionalidad'] ?? '',
                     'numce_pide' => $datosPersonales['numce'] ?? '',
-                    // ... (rest of the personal data mapping)
-                    // Image and fingerprint data
                     'foto_pide' => $imagenes['foto'] ?? '',
                     'firma_pide' => $imagenes['firma'] ?? '',
                     'idDedo_pide' => $huellas['idDedo'] ?? '',

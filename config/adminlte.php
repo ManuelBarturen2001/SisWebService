@@ -367,7 +367,7 @@ return [
             'submenu' => [
                 [
                     'text' => 'Listar Usuarios',
-                    'url' => '/migraciones/listar', // Ruta para la primera vista adicional
+                    'url' => '/proveedores/listar', // Ruta para la primera vista adicional
                     'icon' => 'far fa-fw fa-regular fa-file ml-2',
                     // 'can' => 'admin_gen',
                 ],

@@ -5,6 +5,8 @@ use Illuminate\Support\Facades\Route;
 use Laravel\Socialite\Facades\Socialite;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ReniecController;
+use App\Http\Controllers\MigracionesController;
 use App\Models\User;
 
 
@@ -50,6 +52,18 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     //ROUTE DASHBOARD
     Route::get('/dash', [DashboardController::class, 'index'])->name('dash');
+
+    //ROUTE RENIEC
+    Route::get('/reniec/listar', [ReniecController::class, 'index'])->name('reniec.index');
+    Route::post('/reniec/crear', [ReniecController::class, 'crearUsuarioReniec'])->name('reniec.crear');
+    Route::get('/reniec/{id}', [ReniecController::class, 'obtenerUsuarioReniecPorId'])->name('reniec.obtener');
+    Route::put('/reniec/{id}/editar', [ReniecController::class, 'editarUsuarioReniec'])->name('reniec.editar'); 
+
+    //ROUTE MIGRACIONES
+    Route::get('/migraciones/listar', [MigracionesController::class, 'index'])->name('migraciones.index');
+    Route::post('/migraciones/crear', [MigracionesController::class, 'crearUsuarioMigraciones'])->name('migraciones.crear');
+    Route::get('/migraciones/{id}', [MigracionesController::class, 'listarUsuarioMigracionesPorId'])->name('migraciones.obtener');
+    Route::put('/migraciones/{id}/editar', [MigracionesController::class, 'editarUsuarioMigraciones'])->name('migraciones.editar'); 
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
