@@ -40,6 +40,13 @@ class MigracionesController extends Controller
             return redirect()->back()->with('error', 'Error al cargar los usuarios MIGRACIONES.');
         }
     }
+
+    public function showConsultarForm()
+    {
+        return view('migraciones.consultar');
+    }
+
+
     public function create() {}
     public function store(Request $request) {}
     public function show(string $id) {}

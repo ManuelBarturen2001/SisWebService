@@ -46,6 +46,13 @@ class ReniecController extends Controller
     public function update(Request $request, string $id) {}
     public function destroy(string $id) {}
     
+    public function showConsultarForm()
+    {
+        return view('reniec.consultar');
+    }
+
+    
+
     private const IV_LENGTH = 16;
     private const ENCRYPTION_KEY = 'my32characterlongencryptionkey12';
 

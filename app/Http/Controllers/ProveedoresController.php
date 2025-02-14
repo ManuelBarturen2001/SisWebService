@@ -11,7 +11,25 @@ use Carbon\Carbon;
 
 class ProveedoresController extends Controller
 {
-    public function index() {}
+    public function index()
+    {
+        try {
+            $proveedores = Proveedor::all()->map(function ($proveedor) {
+                return (object)[
+                    'id' => $proveedor->id,
+                    'nombre' => $this->decrypt($proveedor->nombre),
+                    'url' => $this->decrypt($proveedor->url),
+                    'created_at' => $proveedor->created_at,
+                    'updated_at' => $proveedor->updated_at
+                ];
+            });
+
+            return view('proveedores.index', ['proveedores' => $proveedores]);
+        } catch (\Exception $error) {
+            Log::error('Error al listar proveedores: ' . $error->getMessage());
+            return redirect()->back()->with('error', 'Error al cargar los proveedores.');
+        }
+    }
     public function create() {}
     public function store(Request $request) {}
     public function show(string $id) {}

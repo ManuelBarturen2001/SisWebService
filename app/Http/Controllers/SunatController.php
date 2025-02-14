@@ -6,7 +6,10 @@ use Illuminate\Http\Request;
 
 class SunatController extends Controller
 {
-    public function index() {}
+    public function index()
+    {
+        return view('sunat.index');
+    }
     public function create() {}
     public function store(Request $request) {}
     public function show(string $id) {}

@@ -10,10 +10,10 @@
     {{-- Add here extra stylesheets --}}
     <link type="img/ico" rel="icon" href="{{ asset('favicon.ico') }}">
     <link rel="stylesheet" href="https://cdn.datatables.net/2.0.8/css/dataTables.bootstrap5.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css">
+
     <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.4.0/css/responsive.bootstrap5.min.css">
     <link rel="stylesheet" href="{{ asset('css/support.css') }}">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+
     <style>
         table.dataTable tbody td,
         table.dataTable thead th {
@@ -356,7 +356,7 @@
     <footer class="footer-custom">
         <span class="tol">
             Copyright © 2024 Oficina de Tecnologias de la Informacion UNPRG.<span class="tooltiptext">Developed by
-                <a href="https://linkedin.com/in/mbarturen" target="_blank">J.M.B.CH</a> ,
+                <a href="https://linkedin.com/in/mbarturen" target="_blank">J.M.B.CH</a>
         </span>
     </footer>
 @stop

@@ -324,14 +324,8 @@ return [
                 [
                     'text' => 'Usuarios Reniec',
                     'url' => '/reniec/listar', // Ruta para la primera vista adicional
-                    'icon' => 'far fa-fw fa-regular fa-file ml-2',
+                    'icon' => 'fa fa-fw fa-users',
                     // 'can' => 'admin_o_dependencia',
-                ],
-                [
-                    'text' => 'Crear Usuario Reniec',
-                    'url' => '/reniec/create', // Ruta para la primera vista adicional
-                    'icon' => 'fa fa-fw fa-regular fa-file-pdf ml-2',
-                    // 'can' => 'admin_gen',
                 ],
             ],
         ],
@@ -344,13 +338,7 @@ return [
                 [
                     'text' => 'Listar Usuarios',
                     'url' => '/migraciones/listar', // Ruta para la primera vista adicional
-                    'icon' => 'far fa-fw fa-regular fa-file ml-2',
-                    // 'can' => 'admin_gen',
-                ],
-                [
-                    'text' => 'Crear Usuario',
-                    'url' => '/migraciones/create', // Ruta para la primera vista adicional
-                    'icon' => 'fa fa-fw fa-regular fa-file-pdf ml-2',
+                    'icon' => 'fa fa-fw fa-users',
                     // 'can' => 'admin_gen',
                 ],
             ],
@@ -362,25 +350,43 @@ return [
         [
             'text' => 'Proveedores',
             'url' => '#',
-            'icon' => 'fa fa-fw fa-user-tie',
+            'icon' => 'fa fa-fw fa-building',
             // 'can' => 'admin_gen',
             'submenu' => [
                 [
                     'text' => 'Listar Usuarios',
                     'url' => '/proveedores/listar', // Ruta para la primera vista adicional
-                    'icon' => 'far fa-fw fa-regular fa-file ml-2',
-                    // 'can' => 'admin_gen',
-                ],
-                [
-                    'text' => 'Crear Usuario',
-                    'url' => '/migraciones/create', // Ruta para la primera vista adicional
-                    'icon' => 'fa fa-fw fa-regular fa-file-pdf ml-2',
+                    'icon' => 'fa fa-fw fa-users',
                     // 'can' => 'admin_gen',
                 ],
             ],
         ],
+
         [
-            'header' => 'SOPORTE',
+            'header' => 'Consultar Proveedores',
+        ],
+        [
+            'text' => 'Consultar Reniec',
+            'url' => '/consultar/reniec',
+            'icon' => 'fa fa-id-card',
+            // 'can' => 'admin_gen',
+            // 'target' => '_blank',
+        ],
+        [
+            'text' => 'Consultar Sunat',
+            'url' => '/consultar/sunat',
+            'icon' => 'fa fa-file-invoice-dollar',
+            // 'can' => 'admin_gen',
+            // 'target' => '_blank',
+        ],
+        [
+            'text' => 'Consultar Migraciones',
+            'url' => '/consultar/migraciones',
+            'icon' => 'fa fa-passport',
+            // 'can' => 'admin_gen',
+        ],
+        [
+            'header' => 'Soporte',
         ],
         [
             'text' => 'Manual de Usuario',
