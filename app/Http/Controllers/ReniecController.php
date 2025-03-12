@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Reniec as UserReniec;
+use App\Models\Consulta;
 use App\Models\Proveedores as Proveedor;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -69,14 +70,18 @@ class ReniecController extends Controller
     private function decrypt($encryptedString)
     {
         try {
-            $data = json_decode($encryptedString, true);
-            $iv = hex2bin($data['iv']);
-            $encrypted = hex2bin($data['content']);
-            $decrypted = openssl_decrypt($encrypted, 'aes-256-cbc', self::ENCRYPTION_KEY, 0, $iv);
-            return $decrypted;
+            if (is_string($encryptedString) && strpos($encryptedString, '{') === 0) {
+                $data = json_decode($encryptedString, true);
+                $iv = hex2bin($data['iv']);
+                $encrypted = hex2bin($data['content']);
+                $decrypted = openssl_decrypt($encrypted, 'aes-256-cbc', self::ENCRYPTION_KEY, 0, $iv);
+                return $decrypted;
+            } else {
+                return $encryptedString;
+            }
         } catch (\Exception $error) {
             Log::error('Decryption error: ' . $error->getMessage());
-            throw new \Exception('Error decrypting data');
+            throw new \Exception('Error al desencriptar los datos.');
         }
     }
 
@@ -151,6 +156,7 @@ class ReniecController extends Controller
             $usuarioData = $usuario->toArray();
             $usuarioData['nuDniUsuario'] = $this->decrypt($usuarioData['nuDniUsuario']);
             $usuarioData['nuRucUsuario'] = $this->decrypt($usuarioData['nuRucUsuario']);
+            $usuarioData['password'] = $this->decrypt($usuarioData['password']);
 
             return response()->json([
                 'success' => true,
@@ -216,13 +222,12 @@ class ReniecController extends Controller
         ]);
 
         try {
-            // Find RENIEC provider
+            // 1️⃣ OBTENER EL PROVEEDOR RENIEC
             $proveedores = Proveedor::all();
-            $proveedorReniec = $proveedores->first(function ($prov) {
-                return $this->decrypt($prov->nombre) === "reniec";
-            });
+            $proveedorReniec = $proveedores->first(fn($prov) => $this->decrypt($prov->nombre) === "reniec");
 
             if (!$proveedorReniec) {
+                Log::error('Proveedor RENIEC no encontrado en la base de datos');
                 return response()->json([
                     'success' => false,
                     'message' => 'Proveedor de RENIEC no encontrado.'
@@ -231,72 +236,259 @@ class ReniecController extends Controller
 
             $urlReniec = $this->decrypt($proveedorReniec->url);
 
-            // Find enabled users
+            // 2️⃣ OBTENER UN USUARIO HABILITADO
             $usuariosHabilitados = UserReniec::where('estado', 1)->get();
-
             if ($usuariosHabilitados->isEmpty()) {
+                Log::error('No se encontraron usuarios RENIEC habilitados');
                 return response()->json([
                     'success' => false,
                     'message' => 'No hay usuarios habilitados.'
                 ], 404);
             }
 
-            // Select random enabled user
             $usuarioReniec = $usuariosHabilitados->random();
+
+            // 3️⃣ DESENCRIPTAR CREDENCIALES
+            $nuDniUsuario = $this->decrypt($usuarioReniec->nuDniUsuario);
+            $nuRucUsuario = $this->decrypt($usuarioReniec->nuRucUsuario);
+            $password = $this->decrypt($usuarioReniec->password);
 
             $data = [
                 'PIDE' => [
                     'nuDniConsulta' => $request->nuDniConsulta,
-                    'nuDniUsuario' => $this->decrypt($usuarioReniec->nuDniUsuario),
-                    'nuRucUsuario' => $this->decrypt($usuarioReniec->nuRucUsuario),
-                    'password' => $this->decrypt($usuarioReniec->password)
+                    'nuDniUsuario' => $nuDniUsuario,
+                    'nuRucUsuario' => $nuRucUsuario,
+                    'password' => $password
                 ]
             ];
 
-            // Make HTTP request to RENIEC
-            $response = Http::timeout(10)->post($urlReniec, $data);
+            Log::info("Realizando consulta RENIEC para DNI: " . $request->nuDniConsulta, [
+                'url' => $urlReniec,
+                'usuario_dni' => $nuDniUsuario
+            ]);
 
-            // Parse XML response (you might need to install additional XML parsing library)
-            $xml = simplexml_load_string($response->body());
-            $consultarResponse = $xml->{'S:Body'}->{'w:consultarResponse'}->{'return'};
-            $codigoRespuesta = (string)$consultarResponse->coResultado;
+            // 4️⃣ HACER LA SOLICITUD A RENIEC
+            $response = Http::timeout(10)
+                ->withHeaders([
+                    'Content-Type' => 'application/json',
+                    'Accept' => 'application/xml'
+                ])
+                ->post($urlReniec, $data);
 
-            if ($codigoRespuesta === '0000') {
-                $datosPersona = $consultarResponse->datosPersona;
-                
-                $persona = [
-                    'dni' => $request->nuDniConsulta,
-                    'paterno' => (string)$datosPersona->apPrimer ?? '',
-                    'materno' => (string)$datosPersona->apSegundo ?? '',
-                    'nombre' => (string)$datosPersona->prenombres ?? '',
-                    'apPrimer_pide' => (string)$datosPersona->apPrimer ?? '',
-                    'apSegundo_pide' => (string)$datosPersona->apSegundo ?? '',
-                    'direccion_pide' => (string)$datosPersona->direccion ?? '',
-                    'estadoCivil_pide' => (string)$datosPersona->estadoCivil ?? '',
-                    'ubigeo_pide' => (string)$datosPersona->ubigeo ?? '',
-                    'restriccion_pide' => (string)$datosPersona->restriccion ?? '',
-                    'foto_pide' => (string)$datosPersona->foto ?? '',
-                ];
-
-                return response()->json([
-                    'success' => true,
-                    'codigoResultado' => $codigoRespuesta,
-                    'persona' => $persona
+            if (!$response->successful()) {
+                Log::error("Error en la respuesta HTTP de RENIEC", [
+                    'status' => $response->status(),
+                    'body' => $response->body()
                 ]);
-            } else {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Error en la consulta',
-                    'codigoRespuesta' => $codigoRespuesta
-                ], 400);
+                    'message' => 'Error en la conexión con RENIEC',
+                    'status' => $response->status()
+                ], 500);
+            }
+
+            // 5️⃣ PROCESAR RESPUESTA XML
+            $xmlString = trim($response->body());
+            Log::info("Respuesta cruda de RENIEC: " . substr($xmlString, 0, 500) . (strlen($xmlString) > 500 ? '...' : ''));
+
+            // Método mejorado para manejar XML SOAP con namespaces
+            $codigoResultado = '';
+            $datosPersona = [];
+
+            // Desactivar informes de errores libxml para gestionar el manejo personalizado de errores
+            libxml_use_internal_errors(true);
+            
+            try {
+                // Crear un nuevo DOMDocument para trabajar con el XML
+                $doc = new \DOMDocument();
+                $doc->loadXML($xmlString);
+                
+                // Crear un nuevo DOMXPath para consultas XPath
+                $xpath = new \DOMXPath($doc);
+                
+                // Registrar los namespaces necesarios
+                $xpath->registerNamespace('S', 'http://schemas.xmlsoap.org/soap/envelope/');
+                $xpath->registerNamespace('w', 'http://ws.reniec.gob.pe/');
+                
+                // Extraer el código de resultado
+                $coResultadoNodes = $xpath->query('//w:consultarResponse/return/coResultado');
+                if ($coResultadoNodes->length > 0) {
+                    $codigoResultado = $coResultadoNodes->item(0)->nodeValue;
+                }
+                
+                // Si el código es exitoso, extraer los datos de la persona
+                if ($codigoResultado === '0000') {
+                    // Mapear los nodos XML a un array asociativo
+                    $nodosAExtraer = [
+                        'apPrimer' => 'paterno',
+                        'apSegundo' => 'materno',
+                        'prenombres' => 'nombre',
+                        'direccion' => 'direccion_pide',
+                        'estadoCivil' => 'estadoCivil_pide',
+                        'ubigeo' => 'ubigeo_pide',
+                        'restriccion' => 'restriccion_pide',
+                        'foto' => 'foto_pide'
+                    ];
+                    
+                    foreach ($nodosAExtraer as $nodoXml => $campoJson) {
+                        $xpath_query = "//w:consultarResponse/return/datosPersona/{$nodoXml}";
+                        $nodes = $xpath->query($xpath_query);
+                        
+                        if ($nodes->length > 0) {
+                            $datosPersona[$campoJson] = $nodes->item(0)->nodeValue;
+                        } else {
+                            $datosPersona[$campoJson] = '';
+                        }
+                    }
+                    
+                    // Agregar el DNI consultado a los datos
+                    $datosPersona['dni'] = $request->nuDniConsulta;
+                    
+                    Log::info("Consulta RENIEC exitosa para DNI: " . $request->nuDniConsulta);
+                    Consulta::create([
+                        'proveedor' => 'reniec',
+                        'credencial_id' => $usuarioReniec->id,
+                        'documento_consultado' => $request->nuDniConsulta,
+                        'exitoso' => true,
+                        'codigo_respuesta' => $codigoResultado
+                    ]);
+
+                    // ✅ Actualizar la cantidad de consultas en `reniec`
+                    $usuarioReniec->increment('n_consult');
+
+                    return response()->json([
+                        'success' => true,
+                        'codigoResultado' => $codigoResultado,
+                        'persona' => $datosPersona,
+                        'message' => 'Consulta realizada con éxito.'
+                    ]);
+                } else {
+                    // Obtener mensaje de error, si existe
+                    $deResultadoNodes = $xpath->query('//w:consultarResponse/return/deResultado');
+                    $mensajeError = ($deResultadoNodes->length > 0) 
+                        ? $deResultadoNodes->item(0)->nodeValue 
+                        : 'Error desconocido en la consulta RENIEC';
+                    
+                    Log::warning("RENIEC devolvió código de error", [
+                        'codigo' => $codigoResultado,
+                        'mensaje' => $mensajeError,
+                        'dni' => $request->nuDniConsulta
+                    ]);
+                    Consulta::create([
+                        'proveedor' => 'reniec',
+                        'credencial_id' => $usuarioReniec->id,
+                        'documento_consultado' => $request->nuDniConsulta,
+                        'exitoso' => false,
+                        'codigo_respuesta' => $codigoResultado
+                    ]);
+
+                    // ✅ Actualizar la cantidad de consultas en `reniec`
+                    $usuarioReniec->increment('n_consult');
+
+                    return response()->json([
+                        'success' => false,
+                        'message' => $mensajeError,
+                        'codigoResultado' => $codigoResultado
+                    ], 400);
+
+                    
+                }
+            } catch (\Exception $e) {
+                $libxmlErrors = libxml_get_errors();
+                libxml_clear_errors();
+                
+                Log::error("Error al procesar XML SOAP: " . $e->getMessage(), [
+                    'xml_errors' => array_map(function($error) {
+                        return [
+                            'code' => $error->code,
+                            'message' => $error->message,
+                            'line' => $error->line
+                        ];
+                    }, $libxmlErrors)
+                ]);
+                
+                // Intento alternativo con SimpleXML
+                return $this->intentoAlternativoSimpleXML($xmlString, $request->nuDniConsulta);
             }
         } catch (\Exception $error) {
-            Log::error('Error en consulta RENIEC: ' . $error->getMessage());
+            Log::error('Error en consulta RENIEC: ' . $error->getMessage(), [
+                'trace' => $error->getTraceAsString()
+            ]);
             return response()->json([
                 'success' => false,
-                'message' => 'Error al procesar la solicitud',
+                'message' => 'Error interno al procesar la solicitud',
                 'error' => $error->getMessage()
             ], 500);
         }
     }
+    
+    private function intentoAlternativoSimpleXML($xmlString, $dni)
+    {
+        try {
+            // Crear un nuevo objeto SimpleXMLElement
+            $xml = new \SimpleXMLElement($xmlString);
+            
+            // Registrar los namespaces
+            $xml->registerXPathNamespace('S', 'http://schemas.xmlsoap.org/soap/envelope/');
+            $xml->registerXPathNamespace('w', 'http://ws.reniec.gob.pe/');
+            
+            // Acceder al cuerpo SOAP y extraer el nodo de respuesta
+            $bodyNode = $xml->children('http://schemas.xmlsoap.org/soap/envelope/')->Body;
+            $responseNode = $bodyNode->children('http://ws.reniec.gob.pe/')->consultarResponse;
+            
+            if (!$responseNode || !isset($responseNode->return)) {
+                throw new \Exception('Estructura de respuesta RENIEC inválida');
+            }
+            
+            $returnNode = $responseNode->return;
+            $codigoResultado = (string)$returnNode->coResultado;
+            
+            if ($codigoResultado === '0000') {
+                $datosPersonaNode = $returnNode->datosPersona;
+                
+                $persona = [
+                    'dni' => $dni,
+                    'paterno' => (string)$datosPersonaNode->apPrimer,
+                    'materno' => (string)$datosPersonaNode->apSegundo,
+                    'nombre' => (string)$datosPersonaNode->prenombres,
+                    'direccion_pide' => (string)$datosPersonaNode->direccion,
+                    'estadoCivil_pide' => (string)$datosPersonaNode->estadoCivil,
+                    'ubigeo_pide' => (string)$datosPersonaNode->ubigeo,
+                    'restriccion_pide' => (string)$datosPersonaNode->restriccion,
+                    'foto_pide' => (string)$datosPersonaNode->foto
+                ];
+                
+                Log::info("Consulta RENIEC exitosa (método alternativo) para DNI: " . $dni);
+                
+                return response()->json([
+                    'success' => true,
+                    'codigoResultado' => $codigoResultado,
+                    'persona' => $persona
+                ]);
+            } else {
+                $mensajeError = (string)$returnNode->deResultado ?? 'Error desconocido en la consulta RENIEC';
+                
+                Log::warning("RENIEC devolvió código de error (método alternativo)", [
+                    'codigo' => $codigoResultado,
+                    'mensaje' => $mensajeError,
+                    'dni' => $dni
+                ]);
+                
+                return response()->json([
+                    'success' => false,
+                    'message' => $mensajeError,
+                    'codigoResultado' => $codigoResultado
+                ], 400);
+            }
+        } catch (\Exception $e) {
+            Log::error("Error en el método alternativo de procesamiento XML: " . $e->getMessage());
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al procesar la respuesta de RENIEC',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
 }

@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('nuRucUsuario')->nullable();
             $table->string('password');
             $table->boolean('estado')->default(true);
+            $table->string('n_consult')->default(0);
             $table->timestamps();
         });
     }

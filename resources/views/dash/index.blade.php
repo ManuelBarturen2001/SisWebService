@@ -15,87 +15,330 @@
                         <h2 class="text-center mb-4">
                             HOLA, {{ Auth::user()->name }}! 👋
                         </h2>
-                        
                     </div>
                 </div>
             </div>
         </div>
 
-    </div>
+        <!-- Tarjetas de resumen -->
+        <div class="row">
+            <div class="col-lg-3 col-md-6">
+                <div class="small-box bg-info">
+                    <div class="inner">
+                        <h3>{{ $totalConsultas }}</h3>
+                        <p>Consultas Realizadas</p>
+                    </div>
+                    <div class="icon">
+                        <i class="fas fa-search"></i>
+                    </div>
+                </div>
+            </div>
 
-    <!-- Modal HTML -->
-    <div class="modal fade custom-modal" id="supportModal" tabindex="-1" aria-labelledby="supportModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <div class="d-flex align-items-center">
-                        <div class="support-icon-wrapper">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" class="bi bi-headset" viewBox="0 0 16 16">
-                                <path d="M8 1a5 5 0 0 0-5 5v1h1a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V6a6 6 0 1 1 12 0v6a2.5 2.5 0 0 1-2.5 2.5H9.366a1 1 0 0 1-.866.5h-1a1 1 0 1 1 0-2h1a1 1 0 0 1 .866.5H11.5A1.5 1.5 0 0 0 13 12h-1a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1h1V6a5 5 0 0 0-5-5"/>
-                              </svg>
-                        </div>
-                        <div>
-                            <h5 class="modal-title fw-bold mb-1" id="supportModalLabel">Centro de Soporte</h5>
-                            <p class="text-muted mb-0">Estamos aquí para ayudarte</p>
-                        </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="small-box bg-success">
+                    <div class="inner">
+                        <h3>{{ $totalUsuariosReniec }}</h3>
+                        <p>Usuarios RENIEC</p>
                     </div>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <p class="text-muted mb-4">
-                        ¿Tienes alguna pregunta o necesitas asistencia? Nuestro equipo de soporte está listo para ayudarte a resolver cualquier inquietud.
-                    </p>
-                    <div class="contact-card">
-                        <h6 class="fw-bold mb-3">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-envelope-paper-fill mb-1 mr-1" viewBox="0 0 16 16">
-                                <path fill-rule="evenodd" d="M6.5 9.5 3 7.5v-6A1.5 1.5 0 0 1 4.5 0h7A1.5 1.5 0 0 1 13 1.5v6l-3.5 2L8 8.75zM1.059 3.635 2 3.133v3.753L0 5.713V5.4a2 2 0 0 1 1.059-1.765M16 5.713l-2 1.173V3.133l.941.502A2 2 0 0 1 16 5.4zm0 1.16-5.693 3.337L16 13.372v-6.5Zm-8 3.199 7.941 4.412A2 2 0 0 1 14 16H2a2 2 0 0 1-1.941-1.516zm-8 3.3 5.693-3.162L0 6.873v6.5Z"/>
-                              </svg>
-                            Contacto Directo
-                        </h6>
-                        <p class="text-muted mb-3">
-                            Envíanos un correo y te responderemos en menos de 24 horas hábiles.
-                        </p>
-                        <a href="https://mail.google.com/mail/u/0/#inbox?compose=GTvVlcSKkVXmgwMGjmdnVfMtbfNXHmjqFhlMKChkwgKSBglDwvgLdRgkdpbzvQTnhnBHGJJQThsvg" class="email-link" target="_blank">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-envelope-fill mr-1" viewBox="0 0 16 16">
-                                <path d="M.05 3.555A2 2 0 0 1 2 2h12a2 2 0 0 1 1.95 1.555L8 8.414zM0 4.697v7.104l5.803-3.558zM6.761 8.83l-6.57 4.027A2 2 0 0 0 2 14h12a2 2 0 0 0 1.808-1.144l-6.57-4.027L8 9.586zm3.436-.586L16 11.801V4.697z"/>
-                              </svg>
-                            certidoc@unprg.edu.pe
-                        </a>
+                    <div class="icon">
+                        <i class="fas fa-id-card"></i>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <p class="text-muted mb-0 small">
-                        <i class="bi bi-clock me-1"></i>
-                        Atención: Lunes a Viernes, 8:00 AM - 2:00 PM / 3:00 PM - 5:30 PM
-                    </p>
+            </div>
+
+            <div class="col-lg-3 col-md-6">
+                <div class="small-box bg-warning">
+                    <div class="inner">
+                        <h3>{{ $totalUsuariosMigraciones }}</h3>
+                        <p>Usuarios Migraciones</p>
+                    </div>
+                    <div class="icon">
+                        <i class="fas fa-user-shield"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-md-6">
+                <div class="small-box bg-danger">
+                    <div class="inner">
+                        <h3>{{ $totalProveedores }}</h3>
+                        <p>Proveedores Registrados</p>
+                    </div>
+                    <div class="icon">
+                        <i class="fas fa-building"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Distribución de Gráficos -->
+        <div class="row">
+            <!-- Consultas por Proveedor -->
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="card shadow h-100">
+                    <div class="card-header bg-primary text-white">
+                        <i class="fas fa-database"></i> Consultas por Proveedor
+                    </div>
+                    <div class="card-body">
+                        <canvas id="graficoConsultasProveedor"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Consultas por Credencial -->
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="card shadow h-100">
+                    <div class="card-header bg-success text-white">
+                        <i class="fas fa-key"></i> Consultas por Credencial
+                    </div>
+                    <div class="card-body">
+                        <canvas id="graficoConsultasCredencial"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Consultas en los Últimos 30 Días -->
+            <div class="col-lg-4 col-md-12 mb-4">
+                <div class="card shadow h-100">
+                    <div class="card-header bg-warning text-dark">
+                        <i class="fas fa-calendar-alt"></i> Consultas en los Últimos 30 Días
+                    </div>
+                    <div class="card-body">
+                        <canvas id="graficoConsultasDia"></canvas>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
+
 @stop
+
 @section('footer')
     <footer class="footer-custom">
         <span class="tol">
-            Copyright © 2024 Oficina de Tecnologias de la Informacion UNPRG.<span class="tooltiptext">Developed by <a
-                    href="https://linkedin.com/in/dcoelloq06" target="_blank">D.G.C.Q</a> ,
-                <a href="https://linkedin.com/in/mbarturen" target="_blank">J.M.B.CH</a> ,
-                <a href="https://www.linkedin.com/in/kevin-campod%C3%B3nico-guevara-39ab28327" target="_blank">K.A.C.G</a> &
-                <a href="#">I.N.S.V</a></span>
+            Copyright © 2025 Oficina de Tecnologias de la Informacion UNPRG<span class="tooltiptext">Desarrollado por
+                <a href="https://linkedin.com/in/mbarturen" target="_blank">Manuel Barturen</a>
         </span>
     </footer>
 @stop
+
 @section('js')
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Datos desde Laravel
+        var consultasProveedor = @json($consultasPorProveedor);
+        var consultasReniec = @json($consultasReniec);
+        var consultasMigraciones = @json($consultasMigraciones);
+        var consultasPorDia = @json($consultasPorDia);
+
+        // Extraer datos para gráfico de proveedores
+        var labelsProveedores = consultasProveedor.map(item => item.proveedor);
+        var dataProveedores = consultasProveedor.map(item => item.total);
+
+        // Extraer datos para gráfico de credenciales (RENIEC + Migraciones)
+        var labelsCredenciales = [...consultasReniec.map(item => "RENIEC ID " + item.credencial_id), 
+                                ...consultasMigraciones.map(item => "MIGRACIONES ID " + item.credencial_id)];
+        var dataCredenciales = [...consultasReniec.map(item => item.total), 
+                                ...consultasMigraciones.map(item => item.total)];
+
+        // Extraer datos para gráfico de consultas por día
+        var labelsDias = consultasPorDia.map(item => item.fecha);
+        var dataDias = consultasPorDia.map(item => item.total);
+
+        // Crear gráfico de consultas por proveedor
+        new Chart(document.getElementById('graficoConsultasProveedor'), {
+            type: 'pie',
+            data: {
+                labels: labelsProveedores,
+                datasets: [{
+                    label: 'Total Consultas',
+                    data: dataProveedores,
+                    backgroundColor: ['#FF6384', '#36A2EB']
+                }]
+            }
+        });
+
+        // Crear gráfico de consultas por credencial
+        new Chart(document.getElementById('graficoConsultasCredencial'), {
+            type: 'bar',
+            data: {
+                labels: labelsCredenciales,
+                datasets: [{
+                    label: 'Total Consultas',
+                    data: dataCredenciales,
+                    backgroundColor: '#42A5F5'
+                }]
+            }
+        });
+
+        // Crear gráfico de consultas por día
+        new Chart(document.getElementById('graficoConsultasDia'), {
+            type: 'line',
+            data: {
+                labels: labelsDias,
+                datasets: [{
+                    label: 'Consultas por Día',
+                    data: dataDias,
+                    borderColor: '#FFA726',
+                    fill: false
+                }]
+            }
+        });
+
+        // Función para crear un modal dinámico para gráficos
+        function createChartModal(chartId, chartTitle, chartType) {
+            // Crear un nuevo ID para el canvas del modal
+            const modalCanvasId = `modal-${chartId}`;
+            
+            // Crear el HTML del modal
+            const modalHTML = `
+            <div class="modal fade" id="modal-${chartId}" tabindex="-1" aria-labelledby="modal-${chartId}-label" aria-hidden="true">
+                <div class="modal-dialog modal-lg modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="modal-${chartId}-label">${chartTitle}</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <canvas id="${modalCanvasId}-canvas" width="800" height="400"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>`;
+            
+            // Agregar el modal al DOM
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
+            
+            return modalCanvasId;
+        }
+
+        // Función para clonar un gráfico de Chart.js a un canvas diferente
+        function cloneChart(sourceChartId, targetCanvasId) {
+            // Obtener el gráfico original
+            const sourceChart = Chart.getChart(sourceChartId);
+            
+            // Si el gráfico existe, clonar sus datos y configuración
+            if (sourceChart) {
+                const targetCanvas = document.getElementById(targetCanvasId);
+                if (targetCanvas) {
+                    // Crear un nuevo gráfico con los mismos datos y configuración
+                    new Chart(targetCanvas, {
+                        type: sourceChart.config.type,
+                        data: JSON.parse(JSON.stringify(sourceChart.data)),
+                        options: {
+                            ...JSON.parse(JSON.stringify(sourceChart.config.options)),
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    display: true,
+                                    position: 'top',
+                                    labels: {
+                                        font: {
+                                            size: 14
+                                        }
+                                    }
+                                },
+                                tooltip: {
+                                    bodyFont: {
+                                        size: 14
+                                    },
+                                    titleFont: {
+                                        size: 16
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
+            }
+        }
+
+        // Configuración de los modales para cada gráfico
+        document.addEventListener('DOMContentLoaded', function() {
+            // Lista de gráficos para generar modales
+            const charts = [
+                { id: 'graficoConsultasProveedor', title: 'Consultas por Proveedor', type: 'pie' },
+                { id: 'graficoConsultasCredencial', title: 'Consultas por Credencial', type: 'bar' },
+                { id: 'graficoConsultasDia', title: 'Consultas en los Últimos 30 Días', type: 'line' }
+            ];
+            
+            // Generar modal para cada gráfico
+            charts.forEach(chart => {
+                const chartElement = document.getElementById(chart.id);
+                if (chartElement) {
+                    // Crear el modal para este gráfico
+                    // Crear el modal para este gráfico
+                    const modalCanvasId = createChartModal(chart.id, chart.title, chart.type);
+                    
+                    // Hacer el contenedor del gráfico clickeable
+                    const cardContainer = chartElement.closest('.card');
+                    if (cardContainer) {
+                        cardContainer.style.cursor = 'pointer';
+                        
+                        // Agregar un evento de clic al contenedor
+                        cardContainer.addEventListener('click', function() {
+                            // Mostrar el modal
+                            const modal = new bootstrap.Modal(document.getElementById(`modal-${chart.id}`));
+                            modal.show();
+                            
+                            // Clonar el gráfico al canvas del modal
+                            setTimeout(() => {
+                                cloneChart(chart.id, `${modalCanvasId}-canvas`);
+                            }, 150); // Pequeño retraso para asegurar que el modal esté visible
+                        });
+                    }
+                }
+            });
+            
+            // Agregar tooltip a los cards para indicar que son clickeables
+            document.querySelectorAll('.card').forEach(card => {
+                if (card.querySelector('canvas')) {
+                    // Agregar overlay con texto de ayuda
+                    const overlay = document.createElement('div');
+                    overlay.className = 'chart-overlay';
+                    overlay.innerHTML = '<span class="overlay-text"><i class="fas fa-search-plus"></i> Click para ampliar</span>';
+                    card.querySelector('.card-body').appendChild(overlay);
+                }
+            });
+        });
+    </script>
 @stop
+
 @section('css')
     <link type="img/ico" rel="icon" href="{{ asset('favicon.ico') }}">
     <link rel="stylesheet" href="https://cdn.datatables.net/2.0.8/css/dataTables.bootstrap5.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css">
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.4.0/css/responsive.bootstrap5.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link rel="stylesheet" href="{{ asset('css/support.css') }}">
     <style>
+        .card {
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .card:hover {
+            transform: scale(1.03);
+        }
+
+        .card-header {
+            font-weight: bold;
+            font-size: 16px;
+            text-align: center;
+        }
+
+        .custom-headers {
+            background-color: #2873B4 !important;
+            color: white !important;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 22px;
+            text-transform: uppercase;
+        }
         .small-box {
             border-radius: 10px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -110,6 +353,36 @@
             color: rgba(255, 255, 255, 0.3);
             z-index: 0;
         }
+
+        /*  */
+
+        .small-box {
+            border-radius: 10px;
+            padding: 20px;
+            color: white;
+            text-align: center;
+            position: relative;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .small-box .inner {
+            font-size: 18px;
+        }
+
+        .small-box .icon {
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            font-size: 40px;
+            opacity: 0.5;
+        }
+
+        .bg-info { background-color: #17a2b8 !important; }
+        .bg-success { background-color: #28a745 !important; }
+        .bg-warning { background-color: #ffc107 !important; color: black !important; }
+        .bg-danger { background-color: #dc3545 !important; }
+
+        /*  */
 
         .card-body canvas {
             width: 100% !important;
@@ -179,7 +452,6 @@
             color: #FFD700;
         }
 
-
         .tol {
             position: relative;
             display: inline-block;
@@ -218,6 +490,65 @@
             visibility: visible;
             opacity: 1;
         }
-    </style>
+        
+        /* Estilos para los modales de gráficos */
+        .card-body {
+            position: relative;
+        }
 
+        .chart-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            border-radius: 0 0 10px 10px;
+        }
+
+        .card:hover .chart-overlay {
+            opacity: 1;
+        }
+
+        .overlay-text {
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+        }
+
+        /* Estilo para el modal */
+        .modal-content {
+            border-radius: 12px;
+            border: none;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-header {
+            background-color: #2873B4;
+            color: white;
+            border-radius: 12px 12px 0 0;
+            padding: 15px 20px;
+        }
+
+        .modal-body {
+            padding: 20px;
+            height: 500px; /* Altura fija para el modal */
+        }
+
+        /* Estilo para el botón de cerrar */
+        .modal-header .btn-close {
+            color: white;
+            opacity: 0.8;
+        }
+
+        .modal-header .btn-close:hover {
+            opacity: 1;
+        }
+    </style>
 @stop

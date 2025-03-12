@@ -15,9 +15,10 @@ return new class extends Migration
             $table->id();
             $table->string('username')->unique();
             $table->string('password');
-            $table->string('ip', 45); // Soporta IPv4 e IPv6
+            $table->string('ip', 100); // Soporta IPv4 e IPv6
             $table->integer('nivelacceso')->default(1);
             $table->boolean('estado')->default(true);
+            $table->string('n_consult')->default(0);
             $table->timestamps();
         });
     }

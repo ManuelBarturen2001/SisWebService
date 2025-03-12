@@ -43,20 +43,29 @@ class ProveedoresController extends Controller
     // Función para encriptar
     private function encrypt($text)
     {
-        $iv = random_bytes(self::IV_LENGTH);
-        $cipher = openssl_encrypt($text, 'aes-256-cbc', self::ENCRYPTION_KEY, 0, $iv);
-        return json_encode(['iv' => bin2hex($iv), 'content' => $cipher]);
+        $iv = openssl_random_pseudo_bytes(self::IV_LENGTH);
+        $encrypted = openssl_encrypt($text, 'aes-256-cbc', self::ENCRYPTION_KEY, 0, $iv);
+        return json_encode([
+            'iv' => bin2hex($iv),
+            'content' => bin2hex($encrypted)
+        ]);
     }
 
-    // Función para desencriptar
     private function decrypt($encryptedString)
     {
         try {
-            $data = json_decode($encryptedString, true);
-            $iv = hex2bin($data['iv']);
-            return openssl_decrypt($data['content'], 'aes-256-cbc', self::ENCRYPTION_KEY, 0, $iv);
-        } catch (Exception $e) {
-            return null;
+            if (is_string($encryptedString) && strpos($encryptedString, '{') === 0) {
+                $data = json_decode($encryptedString, true);
+                $iv = hex2bin($data['iv']);
+                $encrypted = hex2bin($data['content']);
+                $decrypted = openssl_decrypt($encrypted, 'aes-256-cbc', self::ENCRYPTION_KEY, 0, $iv);
+                return $decrypted;
+            } else {
+                return $encryptedString;
+            }
+        } catch (\Exception $error) {
+            Log::error('Decryption error: ' . $error->getMessage());
+            throw new \Exception('Error al desencriptar los datos.');
         }
     }
 

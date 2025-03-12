@@ -385,6 +385,7 @@ return [
             'icon' => 'fa fa-passport',
             // 'can' => 'admin_gen',
         ],
+        /* 
         [
             'header' => 'Soporte',
         ],
@@ -392,7 +393,6 @@ return [
             'text' => 'Manual de Usuario',
             'url' => 'manuales/Manual-Administrador-General-CERTIDOC.pdf',
             'icon' => 'fa fa-book-open',
-            // 'can' => 'admin_gen',
             'target' => '_blank',
         ],
         [
@@ -400,10 +400,11 @@ return [
             'icon' => 'fa fa-fw fa-info',
             'url' => '#',
             'data' => [
-                'bs-toggle' => 'modal', // Corregido para usar el prefijo `bs-`
-                'bs-target' => '#supportModal', // ID del modal
+                'bs-toggle' => 'modal',
+                'bs-target' => '#supportModal',
             ],
         ]
+        */
     ],
 
     /*

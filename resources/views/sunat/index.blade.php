@@ -32,6 +32,13 @@
             justify-content: center;
             padding: 0 15px;
         }
+
+        .btn-consultar:hover {
+            background-color: #1e5c91;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
         .resultado-consulta {
             background-color: #f8f9fa;
             border-radius: 12px;
@@ -185,6 +192,203 @@
             opacity: 1;
         }
 
+        .loading-container {
+            text-align: center;
+            padding: 25px;
+            margin: 20px auto;
+            max-width: 500px;
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            animation: fadeIn 0.5s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .loading-text {
+            margin-top: 15px;
+            color: #2873B4;
+            font-weight: 500;
+            font-size: 16px;
+            animation: pulse-text 1.5s infinite;
+        }
+
+        /* Nueva animación de búsqueda de documentos */
+        .document-search {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 15px;
+        }
+
+        .document-icon {
+            position: relative;
+            width: 60px;
+            height: 75px;
+            background-color: #fff;
+            border: 2px solid #2873B4;
+            border-radius: 5px;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .document-icon:before {
+            content: "";
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            right: 10px;
+            height: 4px;
+            background-color: #2873B4;
+            border-radius: 2px;
+        }
+
+        .document-icon:after {
+            content: "";
+            position: absolute;
+            top: 20px;
+            left: 10px;
+            right: 10px;
+            height: 4px;
+            background-color: #2873B4;
+            border-radius: 2px;
+        }
+
+        .document-lines {
+            position: absolute;
+            top: 30px;
+            left: 10px;
+            right: 10px;
+            height: 4px;
+            background-color: #2873B4;
+            border-radius: 2px;
+        }
+
+        .document-lines:before {
+            content: "";
+            position: absolute;
+            top: 10px;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background-color: #2873B4;
+            border-radius: 2px;
+        }
+
+        .document-lines:after {
+            content: "";
+            position: absolute;
+            top: 20px;
+            left: 0;
+            right: 15px;
+            height: 4px;
+            background-color: #2873B4;
+            border-radius: 2px;
+        }
+
+        .magnifier {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            border: 3px solid #FFC300;
+            border-radius: 50%;
+            top: 20px;
+            right: -15px;
+            animation: searching 2s infinite;
+        }
+
+        .magnifier:before {
+            content: "";
+            position: absolute;
+            width: 3px;
+            height: 15px;
+            background-color: #FFC300;
+            bottom: -13px;
+            right: 5px;
+            transform: rotate(45deg);
+            border-radius: 3px;
+        }
+
+        /* Animación lateral de búsqueda */
+        @keyframes searching {
+            0% {
+                transform: translateX(0px) rotate(0deg);
+            }
+            25% {
+                transform: translateX(-70px) rotate(-5deg);
+            }
+            50% {
+                transform: translateX(-70px) rotate(5deg);
+            }
+            75% {
+                transform: translateX(0px) rotate(0deg);
+            }
+            100% {
+                transform: translateX(0px) rotate(0deg);
+            }
+        }
+
+        /* Animación de pulso para texto */
+        @keyframes pulse-text {
+            0% {
+                opacity: 0.7;
+            }
+            50% {
+                opacity: 1;
+            }
+            100% {
+                opacity: 0.7;
+            }
+        }
+
+        /* Animación para barras de progreso */
+        .progress-container {
+            margin-top: 15px;
+            height: 5px;
+            background-color: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0;
+            background-color: #2873B4;
+            animation: progress 2s infinite;
+        }
+
+        @keyframes progress {
+            0% {
+                width: 0%;
+            }
+            50% {
+                width: 70%;
+            }
+            100% {
+                width: 100%;
+            }
+        }
+
+        /* Estilo para el mensaje de error */
+        #error {
+            padding: 15px;
+            border-radius: 8px;
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+            margin-top: 15px;
+            font-weight: 500;
+            animation: fadeIn 0.5s ease;
+        }
+
+        /* Ajuste para pantallas pequeñas */
+        @media (max-width: 768px) {
+            .datos-persona-grid {
+                grid-template-columns: 1fr !important;
+            }
+            .loading-container {
+                padding: 15px;
+            }
+        }
+
     </style>
 @stop
 
@@ -210,9 +414,24 @@
                             </div>
                         </form>
 
-                        <div id="loading" style="display: none;">Cargando...</div>
-                        <div id="error" style="color: red; display: none;"></div>
+                         <!-- Animación de carga para SUNAT -->
+                         <div id="loading" class="loading-container" style="display: none;">
+                            <div class="document-search">
+                                <div class="document-icon">
+                                    <div class="document-lines"></div>
+                                    <div class="magnifier"></div>
+                                </div>
+                            </div>
+                            <p class="loading-text">Consultando información del contribuyente...</p>
+                            <div class="progress-container">
+                                <div class="progress-bar"></div>
+                            </div>
+                        </div>
+
+                        <div id="error" style="display: none;"></div>
                         <div id="resultado" class="resultado-consulta" style="display: none;"></div>
+
+
                     </div>
                 </div>
             </div>
@@ -224,8 +443,8 @@
 @section('footer')
     <footer class="footer-custom">
         <span class="tol">
-            Copyright © 2024 Oficina de Tecnologias de la Informacion UNPRG.<span class="tooltiptext">Developed by
-                <a href="https://linkedin.com/in/mbarturen" target="_blank">J.M.B.CH</a>
+            Copyright © 2025 Oficina de Tecnologias de la Informacion UNPRG<span class="tooltiptext">Desarrollado por
+                <a href="https://linkedin.com/in/mbarturen" target="_blank">Manuel Barturen</a>
         </span>
     </footer>
 @stop
@@ -244,16 +463,19 @@ document.getElementById('formConsulta').addEventListener('submit', async functio
     resultado.style.display = 'none';
     
     try {
-        const response = await fetch('{{ route("sunat.consultar") }}', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value
-            },
-            body: JSON.stringify({
-                numRuc: this.querySelector('input[name="numRuc"]').value
-            })
-        });
+        const [response] = await Promise.all([
+            fetch('{{ route("sunat.consultar") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value
+                },
+                body: JSON.stringify({
+                    numRuc: this.querySelector('input[name="numRuc"]').value
+                })
+            }),
+            new Promise(resolve => setTimeout(resolve, 1000))
+        ]);
         
         const data = await response.json();
         

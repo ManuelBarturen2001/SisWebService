@@ -9,7 +9,7 @@ class Reniec extends Model
     use HasFactory;
 
     protected $table = 'reniec';
-    protected $fillable = ['nuDniUsuario','nuRucUsuario', 'password', 'estado'];
+    protected $fillable = ['nuDniUsuario','nuRucUsuario', 'password', 'estado', 'n_consult', 'created_at', 'updated_at'];
 
     
 }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Migraciones as UserMigraciones;
 use App\Models\Proveedores as Proveedor;
+use App\Models\Consulta;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
@@ -331,16 +332,46 @@ class MigracionesController extends Controller
                 $huellas = $datosMigraciones['huellas'][0] ?? [];
 
                 $persona = [
-                    'codRespuesta_pide' => $datosMigraciones['codRespuesta'],
-                    'desRespuesta_pide' => $datosMigraciones['desRespuesta'],
-                    // Personal data
+                    'codRespuesta_pide' => $datosMigraciones['codRespuesta'] ?? '',
+                    'desRespuesta_pide' => $datosMigraciones['desRespuesta'] ?? '',
                     'painacionalidad_pide' => $datosPersonales['painacionalidad'] ?? '',
                     'numce_pide' => $datosPersonales['numce'] ?? '',
+                    'fecinscripcion_pide' => $datosPersonales['fecinscripcion'] ?? '',
+                    'fecemision_pide' => $datosPersonales['fecemision'] ?? '',
+                    'feccaducidad_pide' => $datosPersonales['feccaducidad'] ?? '',
+                    'fecvenresidencia_pide' => $datosPersonales['fecvenresidencia'] ?? '',
+                    'apepaterno_pide' => $datosPersonales['apepaterno'] ?? '',
+                    'apematerno_pide' => $datosPersonales['apematerno'] ?? '',
+                    'nombres_pide' => $datosPersonales['nombres'] ?? '',
+                    'ofimigratoria_pide' => $datosPersonales['ofimigratoria'] ?? '',
+                    'fecnacimiento_pide' => $datosPersonales['fecnacimiento'] ?? '',
+                    'painacimiento_pide' => $datosPersonales['painacimiento'] ?? '',
+                    'ubiactual_pide' => $datosPersonales['ubiactual'] ?? '',
+                    'domactual_pide' => $datosPersonales['domactual'] ?? '',
+                    'numpasaporte_pide' => $datosPersonales['numpasaporte'] ?? '',
+                    'estcivil_pide' => $datosPersonales['estcivil'] ?? '',
+                    'genero_pide' => $datosPersonales['genero'] ?? '',
+                    'calmigratoria_pide' => $datosPersonales['calmigratoria'] ?? '',
+                    'dependencia_pide' => $datosPersonales['dependencia'] ?? '',
+                    'numcarne_pide' => $datosPersonales['numcarne'] ?? '',
+                    'feccaducidad_pide' => $datosPersonales['feccaducidad'] ?? '',
+                    'fecemision_pide' => $datosPersonales['fecemision'] ?? '',
+                    'estado_pide' => $datosPersonales['estado'] ?? '',
                     'foto_pide' => $imagenes['foto'] ?? '',
                     'firma_pide' => $imagenes['firma'] ?? '',
                     'idDedo_pide' => $huellas['idDedo'] ?? '',
                     'imagen_pide' => $huellas['imagen'] ?? '',
                 ];
+                Consulta::create([
+                    'proveedor' => 'migraciones',
+                    'credencial_id' => $usuarioMigraciones->id,
+                    'documento_consultado' => $request->docconsulta,
+                    'exitoso' => true,
+                    'codigo_respuesta' => $datosMigraciones['codRespuesta']
+                ]);
+
+                // ✅ Actualizar la cantidad de consultas en `migracionesc`
+                $usuarioMigraciones->increment('n_consult');
 
                 return response()->json([
                     'success' => true,
@@ -348,6 +379,16 @@ class MigracionesController extends Controller
                     'persona' => $persona
                 ]);
             } else {
+                Consulta::create([
+                    'proveedor' => 'migraciones',
+                    'credencial_id' => $usuarioMigraciones->id,
+                    'documento_consultado' => $request->docconsulta,
+                    'exitoso' => false,
+                    'codigo_respuesta' => $datosMigraciones['codRespuesta']
+                ]);
+
+                $usuarioMigraciones->increment('n_consult');
+
                 return response()->json([
                     'success' => false,
                     'message' => "Error en la consulta: $mensajeError",

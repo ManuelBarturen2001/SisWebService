@@ -80,7 +80,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
 //ROUTE SUNAT
     Route::get('/consultar/sunat', [SunatController::class, 'index'])->name('sunat.index');
-    Route::post('/sunat/consultar', [SunatController::class, 'consultar'])->name('sunat.consultar');
+    Route::post('/sunat/consultar', [SunatController::class, 'consultarSunat'])->name('sunat.consultar');
 
 //ROUTE PROFILE
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

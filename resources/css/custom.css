@@ -1,0 +1,21 @@
+.nav-header {
+    font-size: 14px;
+    font-weight: bold;
+    padding-left: 10px;
+}
+
+/* Colores específicos para cada sección */
+.nav-header:nth-child(1) { color: #e74c3c !important; } /* Gestión de Usuarios - Rojo */
+.nav-header:nth-child(2) { color: #3498db !important; } /* Gestión de Proveedores - Azul */
+.nav-header:nth-child(3) { color: #2ecc71 !important; } /* Consultar Proveedores - Verde */
+.nav-header:nth-child(4) { color: #f39c12 !important; } /* Soporte - Naranja */
+
+.nav-treeview .nav-item a {
+    font-size: 13px;
+    color: #555 !important;
+}
+
+.nav-treeview .nav-item a:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+    color: #007bff !important;
+}

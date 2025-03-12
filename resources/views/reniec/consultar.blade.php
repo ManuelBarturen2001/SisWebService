@@ -39,6 +39,13 @@
             justify-content: center;
             padding: 0 15px;
         }
+
+        .btn-consultar:hover {
+            background-color: #1e5c91;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
         .resultado-consulta {
             background-color: #f8f9fa;
             border-radius: 12px;
@@ -139,7 +146,6 @@
             color: white !important;
             padding: 10px 20px;
             border-radius: 5px;
-
             margin-top: 10px;
             font-size: 24px;
         }
@@ -168,7 +174,6 @@
         .footer-custom a:hover {
             color: #FFD700;
         }
-
 
         .tol {
             position: relative;
@@ -209,6 +214,45 @@
             opacity: 1;
         }
 
+        /* Estilos para la animación de carga */
+        .loading-container {
+            text-align: center;
+            padding: 20px;
+            margin: 20px auto;
+            max-width: 400px;
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            animation: fadeIn 0.5s ease;
+        }
+
+        .loading-text {
+            margin-top: 10px;
+            color: #2873B4;
+            font-weight: 500;
+            font-size: 16px;
+        }
+
+        .pulse-animation .loading-icon {
+            font-size: 40px;
+            color: #2873B4;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(0.95);
+                opacity: 0.7;
+            }
+            50% {
+                transform: scale(1.05);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(0.95);
+                opacity: 0.7;
+            }
+        }
     </style>
 @stop
 
@@ -234,7 +278,14 @@
                             </div>
                         </form>
 
-                        <div id="loading" style="display: none;">Cargando...</div>
+                        <!-- Animación de carga con pulso -->
+                        <div id="loading" class="loading-container pulse-animation" style="display: none;">
+                            <div class="loading-icon">
+                                <i class="fas fa-id-card"></i>
+                            </div>
+                            <p class="loading-text">Verificando DNI...</p>
+                        </div>
+
                         <div id="error" style="display: none;" class="alert alert-danger"></div>
                         <div id="resultado" class="resultado-consulta" style="display: none;"></div>
                     </div>
@@ -248,8 +299,8 @@
 @section('footer')
     <footer class="footer-custom">
         <span class="tol">
-            Copyright © 2024 Oficina de Tecnologias de la Informacion UNPRG.<span class="tooltiptext">Developed by
-                <a href="https://linkedin.com/in/mbarturen" target="_blank">J.M.B.CH</a>
+            Copyright © 2025 Oficina de Tecnologias de la Informacion UNPRG<span class="tooltiptext">Desarrollado por
+                <a href="https://linkedin.com/in/mbarturen" target="_blank">Manuel Barturen</a>
         </span>
     </footer>
 @stop
@@ -263,21 +314,26 @@ document.getElementById('formConsulta').addEventListener('submit', async functio
     const error = document.getElementById('error');
     const resultado = document.getElementById('resultado');
     
+    // Mostrar animación de carga
     loading.style.display = 'block';
     error.style.display = 'none';
     resultado.style.display = 'none';
     
     try {
-        const response = await fetch('{{ route("reniec.consultar") }}', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value
-            },
-            body: JSON.stringify({
-                nuDniConsulta: this.querySelector('input[name="nuDniConsulta"]').value
-            })
-        });
+        // Simular un tiempo mínimo de carga de 800ms para mostrar la animación
+        const [response] = await Promise.all([
+            fetch('{{ route("reniec.consultar") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value
+                },
+                body: JSON.stringify({
+                    nuDniConsulta: this.querySelector('input[name="nuDniConsulta"]').value
+                })
+            }),
+            new Promise(resolve => setTimeout(resolve, 800))
+        ]);
         
         const data = await response.json();
         
@@ -315,13 +371,17 @@ document.getElementById('formConsulta').addEventListener('submit', async functio
             }
             
             resultado.innerHTML = html;
+            
+            // Añadir animación de aparición al mostrar resultados
             resultado.style.display = 'block';
+            resultado.style.animation = 'fadeIn 0.5s ease';
         } else {
             throw new Error('No se encontraron datos');
         }
     } catch (err) {
         error.textContent = 'No se encontraron datos para el DNI ingresado o hubo un error en la consulta.';
         error.style.display = 'block';
+        error.style.animation = 'fadeIn 0.5s ease';
     } finally {
         loading.style.display = 'none';
     }

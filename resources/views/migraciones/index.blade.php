@@ -12,212 +12,9 @@
 
     <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.4.0/css/responsive.bootstrap5.min.css">
     <link rel="stylesheet" href="{{ asset('css/support.css') }}">
-
+    <link rel="stylesheet" href="{{ asset('css/migraciones.css') }}">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <style>
-        table.dataTable tbody td,
-        table.dataTable thead th {
-            text-align: center;
-        }
 
-        textarea {
-            resize: none;
-        }
-
-        label p {
-            display: inline;
-        }
-
-        .custom-header {
-            background-color: #2873B4 !important;
-            color: white !important;
-        }
-
-        .btn-custom {
-            background-color: transparent;
-            color: black;
-            border-color: transparent;
-        }
-
-        .custom-headers {
-            background-color: #2873B4 !important;
-            color: white !important;
-            padding: 10px 20px;
-            border-radius: 5px;
-            margin-top: 10px;
-            font-size: 24px;
-        }
-
-        .celda-nombre {
-            text-align: justify !important;
-            width: 35% !important;
-        }
-
-        .custom-table {
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            overflow: hidden;
-        }
-
-        .custom-table th,
-        .custom-table td {
-            border: 1px solid #ddd;
-            padding: 8px;
-        }
-
-        .footer-custom {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background-color: #2873B4;
-            color: white;
-            padding: 15px;
-            width: 100%;
-            text-align: center;
-            font-size: 16px;
-            font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
-            font-weight: bold;
-            position: relative;
-        }
-
-        .footer-custom a {
-            color: #FFC300;
-            text-decoration: none;
-            font-weight: bold;
-        }
-
-        .footer-custom a:hover {
-            color: #FFD700;
-        }
-
-
-        .tol {
-            position: relative;
-            display: inline-block;
-        }
-
-        .tol .tooltiptext {
-            visibility: hidden;
-            white-space: nowrap;
-            font-size: 14px;
-            background-color: rgba(0, 0, 0, 0.85);
-            color: #fff;
-            text-align: center;
-            border-radius: 6px;
-            padding: 5px 10px;
-            position: absolute;
-            z-index: 1;
-            bottom: 125%;
-            left: 50%;
-            transform: translateX(-50%);
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .tol .tooltiptext::after {
-            content: "";
-            position: absolute;
-            top: 100%;
-            left: 50%;
-            transform: translateX(-50%);
-            border-width: 5px;
-            border-style: solid;
-            border-color: rgba(0, 0, 0, 0.85) transparent transparent transparent;
-        }
-
-        .tol:hover .tooltiptext {
-            visibility: visible;
-            opacity: 1;
-        }
-
-        /* Estilos para el modal */
-        .modal-content {
-            border-radius: 15px;
-            overflow: hidden;
-        }
-
-        .modal-header {
-            padding: 1.5rem;
-            border: none;
-        }
-
-        .modal-body {
-            padding: 2rem;
-        }
-
-        /* Estilos para los inputs */
-        .input-wrapper {
-            position: relative;
-        }
-
-        .custom-input {
-            height: 45px;
-            padding-left: 15px;
-            padding-right: 40px;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            transition: all 0.3s ease;
-        }
-
-        .custom-input:focus {
-            border-color: #2873b5;
-            box-shadow: 0 0 0 0.2rem rgba(40, 115, 181, 0.15);
-        }
-
-        .input-icon {
-            position: absolute;
-            right: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .input-icon:hover {
-            color: #2873b5 !important;
-        }
-
-        /* Estilos para los botones */
-        .custom-btn-submit {
-            background: linear-gradient(135deg, #2873b5 0%, #7bd4e8 100%);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            padding: 10px 25px;
-            transition: all 0.3s ease;
-        }
-
-        .custom-btn-submit:hover {
-            background: linear-gradient(135deg, #2365a0 0%, #6ac3d7 100%);
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(40, 115, 181, 0.2);
-            color: white;
-        }
-
-        .custom-btn-cancel {
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            padding: 10px 25px;
-            transition: all 0.3s ease;
-            color: #737373;
-        }
-
-        .custom-btn-cancel:hover {
-            background-color: #f8f9fa;
-            border-color: #737373;
-            color: #737373;
-        }
-
-        /* Animaciones */
-        .modal.fade .modal-dialog {
-            transform: scale(0.95);
-            transition: transform 0.3s ease;
-        }
-
-        .modal.show .modal-dialog {
-            transform: scale(1);
-        }
-    </style>
 @stop
 
 @section('content')
@@ -237,6 +34,7 @@
                             <th>IP</th>
                             <th>Nivel Acceso</th>
                             <th>Estado</th>
+                            <th>Num Consultas</th>
                             <th>Acciones</th>
                         </tr>
                     </thead>
@@ -252,6 +50,7 @@
                                     {{ $usuario->estado ? 'Activo' : 'Inactivo' }}
                                 </span>
                             </td>
+                            <td>{{ $usuario->n_consult}}</td>
                             <td>
                                 <button class="btn btn-sm btn-info editar-usuario" 
                                         data-id="{{ $usuario->id }}"
@@ -259,6 +58,7 @@
                                         data-ip="{{ $usuario->ip }}"
                                         data-nivelacceso="{{ $usuario->nivelacceso }}"
                                         data-estado="{{ $usuario->estado }}"
+                                        data-n_consult="{{ $usuario->n_consult }}"
                                         data-bs-toggle="modal" 
                                         data-bs-target="#editarUsuarioModal">
                                     <i class="fas fa-edit"></i>
@@ -358,8 +158,8 @@
 @section('footer')
     <footer class="footer-custom">
         <span class="tol">
-            Copyright © 2024 Oficina de Tecnologias de la Informacion UNPRG.<span class="tooltiptext">Developed by
-                <a href="https://linkedin.com/in/mbarturen" target="_blank">J.M.B.CH</a>
+            Copyright © 2025 Oficina de Tecnologias de la Informacion UNPRG<span class="tooltiptext">Desarrollado por
+                <a href="https://linkedin.com/in/mbarturen" target="_blank">Manuel Barturen</a>
         </span>
     </footer>
 @stop
@@ -372,6 +172,7 @@
     <script src="https://cdn.datatables.net/1.13.1/js/dataTables.bootstrap5.min.js"></script>
     <script src="https://cdn.datatables.net/responsive/2.4.0/js/dataTables.responsive.min.js"></script>
     <script src="https://cdn.datatables.net/responsive/2.4.0/js/responsive.bootstrap5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
         $(document).ready(function() {
@@ -393,9 +194,10 @@
                     success: function(response) {
                         if(response.success) {
                             $('#crearUsuarioModal').modal('hide');
-                            location.reload();
+                            Swal.fire('¡Éxito!', 'Usuario Migraciones creado exitosamente', 'success')
+                            .then(() => location.reload());
                         } else {
-                            alert(response.message || 'Error al crear usuario');
+                            Swal.fire('Error', 'Error al crear el usuario', 'error');
                         }
                     },
                     error: function(xhr) {
@@ -434,11 +236,12 @@
                     success: function(response) {
                         if(response.success) {
                             $('#editarUsuarioModal').modal('hide');
-                            location.reload();
+                            Swal.fire('¡Éxito!', 'Usuario Migraciones actualizado exitosamente', 'success')
+                            .then(() => location.reload());
                         }
                     },
                     error: function(xhr) {
-                        alert('Error al actualizar usuario: ' + xhr.responseJSON.message);
+                        Swal.fire('Error', 'Error al actualizar el usuario', 'error');
                     }
                 });
             });

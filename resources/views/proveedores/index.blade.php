@@ -294,7 +294,7 @@
                         <tr>
                             <td>{{ $proveedor->id }}</td>
                             <td>{{ $proveedor->nombre }}</td>
-                            <td>{{ $proveedor->url }}</td>
+                            <td>Url Encryted</td>
                             <td>{{ $proveedor->created_at }}</td>
                             <td>{{ $proveedor->updated_at }}</td>
                             <td>
@@ -380,8 +380,8 @@
 @section('footer')
     <footer class="footer-custom">
         <span class="tol">
-            Copyright © 2024 Oficina de Tecnologias de la Informacion UNPRG.<span class="tooltiptext">Developed by
-                <a href="https://linkedin.com/in/mbarturen" target="_blank">J.M.B.CH</a>
+            Copyright © 2025 Oficina de Tecnologias de la Informacion UNPRG<span class="tooltiptext">Desarrollado por
+                <a href="https://linkedin.com/in/mbarturen" target="_blank">Manuel Barturen</a>
         </span>
     </footer>
 @stop
