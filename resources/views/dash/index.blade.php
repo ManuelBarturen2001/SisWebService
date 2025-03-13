@@ -79,8 +79,10 @@
                     <div class="card-header bg-primary text-white">
                         <i class="fas fa-database"></i> Consultas por Proveedor
                     </div>
-                    <div class="card-body">
-                        <canvas id="graficoConsultasProveedor"></canvas>
+                    <div class="card-body d-flex align-items-center justify-content-center">
+                        <div style="width: 100%; height: 100%; position: relative;">
+                            <canvas id="graficoConsultasProveedor"></canvas>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -91,8 +93,10 @@
                     <div class="card-header bg-success text-white">
                         <i class="fas fa-key"></i> Consultas por Credencial
                     </div>
-                    <div class="card-body">
-                        <canvas id="graficoConsultasCredencial"></canvas>
+                    <div class="card-body d-flex align-items-center justify-content-center">
+                        <div style="width: 100%; height: 100%; position: relative;">
+                            <canvas id="graficoConsultasCredencial"></canvas>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -103,8 +107,10 @@
                     <div class="card-header bg-warning text-dark">
                         <i class="fas fa-calendar-alt"></i> Consultas en los Últimos 30 Días
                     </div>
-                    <div class="card-body">
-                        <canvas id="graficoConsultasDia"></canvas>
+                    <div class="card-body d-flex align-items-center justify-content-center">
+                        <div style="width: 100%; height: 100%; position: relative;">
+                            <canvas id="graficoConsultasDia"></canvas>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -146,6 +152,28 @@
         var labelsDias = consultasPorDia.map(item => item.fecha);
         var dataDias = consultasPorDia.map(item => item.total);
 
+        // Función para establecer opciones responsivas comunes para los gráficos
+        function getChartOptions() {
+            return {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                        labels: {
+                            font: {
+                                size: 12
+                            }
+                        }
+                    },
+                    tooltip: {
+                        enabled: true
+                    }
+                }
+            };
+        }
+
         // Crear gráfico de consultas por proveedor
         new Chart(document.getElementById('graficoConsultasProveedor'), {
             type: 'pie',
@@ -154,9 +182,10 @@
                 datasets: [{
                     label: 'Total Consultas',
                     data: dataProveedores,
-                    backgroundColor: ['#FF6384', '#36A2EB']
+                    backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF']
                 }]
-            }
+            },
+            options: getChartOptions()
         });
 
         // Crear gráfico de consultas por credencial
@@ -169,6 +198,20 @@
                     data: dataCredenciales,
                     backgroundColor: '#42A5F5'
                 }]
+            },
+            options: {
+                ...getChartOptions(),
+                scales: {
+                    x: {
+                        ticks: {
+                            maxRotation: 45,
+                            minRotation: 45
+                        }
+                    },
+                    y: {
+                        beginAtZero: true
+                    }
+                }
             }
         });
 
@@ -181,8 +224,25 @@
                     label: 'Consultas por Día',
                     data: dataDias,
                     borderColor: '#FFA726',
-                    fill: false
+                    backgroundColor: 'rgba(255, 167, 38, 0.2)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.4
                 }]
+            },
+            options: {
+                ...getChartOptions(),
+                scales: {
+                    x: {
+                        ticks: {
+                            maxRotation: 45,
+                            minRotation: 45
+                        }
+                    },
+                    y: {
+                        beginAtZero: true
+                    }
+                }
             }
         });
 
@@ -264,11 +324,15 @@
                 { id: 'graficoConsultasDia', title: 'Consultas en los Últimos 30 Días', type: 'line' }
             ];
             
+            // Establecer altura fija para los contenedores de gráficos
+            document.querySelectorAll('.card.h-100 .card-body').forEach(cardBody => {
+                cardBody.style.height = '250px';
+            });
+            
             // Generar modal para cada gráfico
             charts.forEach(chart => {
                 const chartElement = document.getElementById(chart.id);
                 if (chartElement) {
-                    // Crear el modal para este gráfico
                     // Crear el modal para este gráfico
                     const modalCanvasId = createChartModal(chart.id, chart.title, chart.type);
                     
@@ -382,11 +446,25 @@
         .bg-warning { background-color: #ffc107 !important; color: black !important; }
         .bg-danger { background-color: #dc3545 !important; }
 
-        /*  */
+        /* Ajustes para los gráficos */
+        .card-body {
+            position: relative;
+            padding: 1.25rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            
+        }
+
+        /* Asegura que los canvas ocupen todo el espacio disponible */
+        .card-body > div {
+            width: 100%;
+            height: 100%;
+        }
 
         .card-body canvas {
-            width: 100% !important;
-            height: auto !important;
+            max-width: 100%;
+            max-height: 100%;
         }
 
         .custom-header {
@@ -410,7 +488,6 @@
             color: white !important;
             padding: 10px 20px;
             border-radius: 5px;
-
             margin-top: 10px;
             font-size: 24px;
         }
@@ -492,10 +569,6 @@
         }
         
         /* Estilos para los modales de gráficos */
-        .card-body {
-            position: relative;
-        }
-
         .chart-overlay {
             position: absolute;
             top: 0;
