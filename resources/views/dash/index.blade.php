@@ -3,7 +3,7 @@
 @section('title', 'Home')
 
 @section('content_header')
-    <h1 class="custom-headers text-center w-100">BIENVENIDOS AL SISTEMA</h1>
+    <h1 class="custom-headers text-center w-100">BIENVENIDO AL SISTEMA</h1>
 @stop
 
 @section('content')
