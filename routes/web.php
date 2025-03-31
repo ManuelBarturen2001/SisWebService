@@ -54,7 +54,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
 //ROUTE DASHBOARD
     Route::get('/dash', [DashboardController::class, 'index'])->name('dash');
-
+    Route::get('/consultas-por-fecha', [DashboardController::class, 'consultasPorFecha'])->name('consultas.por.fecha');
+    
 //ROUTE RENIEC
     Route::get('/reniec/listar', [ReniecController::class, 'index'])->name('reniec.index');
     Route::post('/reniec/crear', [ReniecController::class, 'crearUsuarioReniec'])->name('reniec.crear');

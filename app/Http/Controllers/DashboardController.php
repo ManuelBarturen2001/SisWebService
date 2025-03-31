@@ -37,12 +37,32 @@ class DashboardController extends Controller
         // Obtener información de los usuarios de Migraciones para los IDs
         $usuariosMigraciones = Migraciones::whereIn('id', $consultasMigraciones->pluck('credencial_id'))->get();
         
-        // Consultas por día (últimos 30 días)
-        $consultasPorDia = Consulta::where('created_at', '>=', Carbon::now()->subDays(30))
+        // Obtener los últimos 7 días completos (incluyendo días sin consultas)
+        $fechaInicio = Carbon::now()->subDays(7)->startOfDay();
+        $fechaFin = Carbon::now()->endOfDay();
+
+        // Generar una lista de los últimos 7 días
+        $diasUltimaSemana = collect();
+        for ($date = clone $fechaInicio; $date <= $fechaFin; $date->addDay()) {
+            $diasUltimaSemana->push($date->format('Y-m-d'));
+        }
+
+        // Consultas por día en los últimos 7 días
+        $consultasPorDia = Consulta::whereBetween('created_at', [$fechaInicio, $fechaFin])
             ->select(DB::raw('DATE(created_at) as fecha'), DB::raw('count(*) as total'))
             ->groupBy('fecha')
             ->orderBy('fecha')
-            ->get();
+            ->get()
+            // Asegurar que todos los días estén representados
+            ->keyBy('fecha');
+
+        // Completar días sin consultas con 0
+        $consultasPorDia = $diasUltimaSemana->map(function ($dia) use ($consultasPorDia) {
+            return [
+                'fecha' => $dia,
+                'total' => $consultasPorDia->has($dia) ? $consultasPorDia[$dia]['total'] : 0
+            ];
+        })->sort();
         
         // Tasa de éxito por proveedor
         $tasaExitoPorProveedor = Consulta::select('proveedor', 
@@ -71,5 +91,36 @@ class DashboardController extends Controller
             'totalUsuariosMigraciones'=> $totalUsuariosMigraciones, 
             'totalProveedores'=> $totalProveedores,
         ]);
+    }
+
+    // Método para obtener consultas por rango de fechas
+    public function consultasPorFecha(Request $request)
+    {
+        $fechaInicio = Carbon::parse($request->fecha_inicio)->startOfDay();
+        $fechaFin = Carbon::parse($request->fecha_fin)->endOfDay();
+
+        // Generar una lista de todos los días en el rango
+        $diasRango = collect();
+        for ($date = clone $fechaInicio; $date <= $fechaFin; $date->addDay()) {
+            $diasRango->push($date->format('Y-m-d'));
+        }
+
+        // Consultas por día en el rango seleccionado
+        $consultasPorDia = Consulta::whereBetween('created_at', [$fechaInicio, $fechaFin])
+            ->select(DB::raw('DATE(created_at) as fecha'), DB::raw('count(*) as total'))
+            ->groupBy('fecha')
+            ->orderBy('fecha')
+            ->get()
+            ->keyBy('fecha');
+
+        // Completar días sin consultas con 0
+        $consultasPorDia = $diasRango->map(function ($dia) use ($consultasPorDia) {
+            return [
+                'fecha' => $dia,
+                'total' => $consultasPorDia->has($dia) ? $consultasPorDia[$dia]['total'] : 0
+            ];
+        })->sort();
+
+        return response()->json($consultasPorDia->values());
     }
 }

@@ -105,7 +105,7 @@
             <div class="col-lg-4 col-md-12 mb-4">
                 <div class="card shadow h-100">
                     <div class="card-header bg-warning text-dark">
-                        <i class="fas fa-calendar-alt"></i> Consultas en los Últimos 30 Días
+                        <i class="fas fa-calendar-alt"></i> Consultas en los Últimos 7 Días
                     </div>
                     <div class="card-body d-flex align-items-center justify-content-center">
                         <div style="width: 100%; height: 100%; position: relative;">
@@ -139,90 +139,58 @@
         var consultasPorDia = @json($consultasPorDia);
 
         // Extraer datos para gráfico de proveedores
-        var labelsProveedores = consultasProveedor.map(item => item.proveedor);
-        var dataProveedores = consultasProveedor.map(item => item.total);
+    var labelsProveedores = consultasProveedor.map(item => item.proveedor);
+    var dataProveedores = consultasProveedor.map(item => item.total);
 
-        // Extraer datos para gráfico de credenciales (RENIEC + Migraciones)
-        var labelsCredenciales = [...consultasReniec.map(item => "RENIEC ID " + item.credencial_id), 
-                                ...consultasMigraciones.map(item => "MIGRACIONES ID " + item.credencial_id)];
-        var dataCredenciales = [...consultasReniec.map(item => item.total), 
-                                ...consultasMigraciones.map(item => item.total)];
+    // Extraer datos para gráfico de credenciales (RENIEC + Migraciones)
+    var labelsCredenciales = [...consultasReniec.map(item => "RENIEC ID " + item.credencial_id), 
+                            ...consultasMigraciones.map(item => "MIGRACIONES ID " + item.credencial_id)];
+    var dataCredenciales = [...consultasReniec.map(item => item.total), 
+                            ...consultasMigraciones.map(item => item.total)];
 
-        // Extraer datos para gráfico de consultas por día
-        var labelsDias = consultasPorDia.map(item => item.fecha);
-        var dataDias = consultasPorDia.map(item => item.total);
+    // Extraer datos para gráfico de consultas por día
+    var labelsDias = consultasPorDia.map(item => item.fecha);
+    var dataDias = consultasPorDia.map(item => item.total);
 
-        // Función para establecer opciones responsivas comunes para los gráficos
-        function getChartOptions() {
-            return {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        display: true,
-                        position: 'top',
-                        labels: {
-                            font: {
-                                size: 12
-                            }
+    // Función para establecer opciones responsivas comunes para los gráficos
+    function getChartOptions() {
+        return {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'top',
+                    labels: {
+                        font: {
+                            size: 12
                         }
-                    },
-                    tooltip: {
-                        enabled: true
                     }
-                }
-            };
-        }
-
-        // Crear gráfico de consultas por proveedor
-        new Chart(document.getElementById('graficoConsultasProveedor'), {
-            type: 'pie',
-            data: {
-                labels: labelsProveedores,
-                datasets: [{
-                    label: 'Total Consultas',
-                    data: dataProveedores,
-                    backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF']
-                }]
-            },
-            options: getChartOptions()
-        });
-
-        // Crear gráfico de consultas por credencial
-        new Chart(document.getElementById('graficoConsultasCredencial'), {
-            type: 'bar',
-            data: {
-                labels: labelsCredenciales,
-                datasets: [{
-                    label: 'Total Consultas',
-                    data: dataCredenciales,
-                    backgroundColor: '#42A5F5'
-                }]
-            },
-            options: {
-                ...getChartOptions(),
-                scales: {
-                    x: {
-                        ticks: {
-                            maxRotation: 45,
-                            minRotation: 45
-                        }
-                    },
-                    y: {
-                        beginAtZero: true
-                    }
+                },
+                tooltip: {
+                    enabled: true
                 }
             }
-        });
+        };
+    }
 
-        // Crear gráfico de consultas por día
-        new Chart(document.getElementById('graficoConsultasDia'), {
+    // Función para crear o actualizar gráfico de consultas por día
+    function crearGraficoDia(labels, data, canvasId) {
+        const ctx = document.getElementById(canvasId);
+        
+        // Destruir gráfico existente si hay uno
+        const existingChart = Chart.getChart(canvasId);
+        if (existingChart) {
+            existingChart.destroy();
+        }
+
+        new Chart(ctx, {
             type: 'line',
             data: {
-                labels: labelsDias,
+                labels: labels,
                 datasets: [{
                     label: 'Consultas por Día',
-                    data: dataDias,
+                    data: data,
                     borderColor: '#FFA726',
                     backgroundColor: 'rgba(255, 167, 38, 0.2)',
                     borderWidth: 2,
@@ -245,129 +213,225 @@
                 }
             }
         });
+    }
 
-        // Función para crear un modal dinámico para gráficos
-        function createChartModal(chartId, chartTitle, chartType) {
-            // Crear un nuevo ID para el canvas del modal
-            const modalCanvasId = `modal-${chartId}`;
-            
-            // Crear el HTML del modal
-            const modalHTML = `
-            <div class="modal fade" id="modal-${chartId}" tabindex="-1" aria-labelledby="modal-${chartId}-label" aria-hidden="true">
-                <div class="modal-dialog modal-lg modal-dialog-centered">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="modal-${chartId}-label">${chartTitle}</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body">
-                            <canvas id="${modalCanvasId}-canvas" width="800" height="400"></canvas>
-                        </div>
-                    </div>
-                </div>
-            </div>`;
-            
-            // Agregar el modal al DOM
-            document.body.insertAdjacentHTML('beforeend', modalHTML);
-            
-            return modalCanvasId;
+    // Función para actualizar los gráficos de consultas por día
+    function actualizarGraficosDia(datos) {
+        // Extraer labels y data
+        const labels = datos.map(item => item.fecha);
+        const data = datos.map(item => item.total);
+
+        // Actualizar gráfico pequeño
+        crearGraficoDia(labels, data, 'graficoConsultasDia');
+
+        // Actualizar gráfico en el modal si existe
+        const modalCanvasId = 'modal-graficoConsultasDia-canvas';
+        const modalCanvas = document.getElementById(modalCanvasId);
+        if (modalCanvas) {
+            crearGraficoDia(labels, data, modalCanvasId);
         }
+    }
 
-        // Función para clonar un gráfico de Chart.js a un canvas diferente
-        function cloneChart(sourceChartId, targetCanvasId) {
-            // Obtener el gráfico original
-            const sourceChart = Chart.getChart(sourceChartId);
-            
-            // Si el gráfico existe, clonar sus datos y configuración
-            if (sourceChart) {
-                const targetCanvas = document.getElementById(targetCanvasId);
-                if (targetCanvas) {
-                    // Crear un nuevo gráfico con los mismos datos y configuración
-                    new Chart(targetCanvas, {
-                        type: sourceChart.config.type,
-                        data: JSON.parse(JSON.stringify(sourceChart.data)),
-                        options: {
-                            ...JSON.parse(JSON.stringify(sourceChart.config.options)),
-                            responsive: true,
-                            maintainAspectRatio: false,
-                            plugins: {
-                                legend: {
-                                    display: true,
-                                    position: 'top',
-                                    labels: {
-                                        font: {
-                                            size: 14
-                                        }
-                                    }
-                                },
-                                tooltip: {
-                                    bodyFont: {
-                                        size: 14
-                                    },
-                                    titleFont: {
-                                        size: 16
-                                    }
-                                }
-                            }
-                        }
-                    });
+    // Crear gráfico de consultas por proveedor
+    new Chart(document.getElementById('graficoConsultasProveedor'), {
+        type: 'pie',
+        data: {
+            labels: labelsProveedores,
+            datasets: [{
+                label: 'Total Consultas',
+                data: dataProveedores,
+                backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF']
+            }]
+        },
+        options: getChartOptions()
+    });
+
+    // Crear gráfico de consultas por credencial
+    new Chart(document.getElementById('graficoConsultasCredencial'), {
+        type: 'bar',
+        data: {
+            labels: labelsCredenciales,
+            datasets: [{
+                label: 'Total Consultas',
+                data: dataCredenciales,
+                backgroundColor: '#42A5F5'
+            }]
+        },
+        options: {
+            ...getChartOptions(),
+            scales: {
+                x: {
+                    ticks: {
+                        maxRotation: 45,
+                        minRotation: 45
+                    }
+                },
+                y: {
+                    beginAtZero: true
                 }
             }
         }
+    });
 
-        // Configuración de los modales para cada gráfico
-        document.addEventListener('DOMContentLoaded', function() {
-            // Lista de gráficos para generar modales
-            const charts = [
-                { id: 'graficoConsultasProveedor', title: 'Consultas por Proveedor', type: 'pie' },
-                { id: 'graficoConsultasCredencial', title: 'Consultas por Credencial', type: 'bar' },
-                { id: 'graficoConsultasDia', title: 'Consultas en los Últimos 30 Días', type: 'line' }
-            ];
-            
-            // Establecer altura fija para los contenedores de gráficos
-            document.querySelectorAll('.card.h-100 .card-body').forEach(cardBody => {
-                cardBody.style.height = '250px';
-            });
-            
-            // Generar modal para cada gráfico
-            charts.forEach(chart => {
-                const chartElement = document.getElementById(chart.id);
-                if (chartElement) {
-                    // Crear el modal para este gráfico
-                    const modalCanvasId = createChartModal(chart.id, chart.title, chart.type);
-                    
-                    // Hacer el contenedor del gráfico clickeable
-                    const cardContainer = chartElement.closest('.card');
-                    if (cardContainer) {
-                        cardContainer.style.cursor = 'pointer';
-                        
-                        // Agregar un evento de clic al contenedor
-                        cardContainer.addEventListener('click', function() {
-                            // Mostrar el modal
-                            const modal = new bootstrap.Modal(document.getElementById(`modal-${chart.id}`));
-                            modal.show();
-                            
-                            // Clonar el gráfico al canvas del modal
-                            setTimeout(() => {
-                                cloneChart(chart.id, `${modalCanvasId}-canvas`);
-                            }, 150); // Pequeño retraso para asegurar que el modal esté visible
-                        });
-                    }
-                }
-            });
-            
-            // Agregar tooltip a los cards para indicar que son clickeables
-            document.querySelectorAll('.card').forEach(card => {
-                if (card.querySelector('canvas')) {
-                    // Agregar overlay con texto de ayuda
-                    const overlay = document.createElement('div');
-                    overlay.className = 'chart-overlay';
-                    overlay.innerHTML = '<span class="overlay-text"><i class="fas fa-search-plus"></i> Click para ampliar</span>';
-                    card.querySelector('.card-body').appendChild(overlay);
-                }
-            });
+    // Crear gráfico de consultas por día inicial
+    crearGraficoDia(labelsDias, dataDias, 'graficoConsultasDia');
+
+    // Función para crear un modal dinámico para gráficos
+    function createChartModal(chartId, chartTitle, chartType) {
+        // Crear un nuevo ID para el canvas del modal
+        const modalCanvasId = `modal-${chartId}`;
+        
+        // Crear el HTML del modal
+        const modalHTML = `
+        <div class="modal fade" id="modal-${chartId}"
+        ${chartId === 'graficoConsultasDia' ? 'class="modal-consultas-dia"' : ''}
+        tabindex="-1" aria-labelledby="modal-${chartId}-label" aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="modal-${chartId}-label">${chartTitle}</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        ${chartId === 'graficoConsultasDia' ? `
+                        <div class="container mt-3">
+                            <div class="row">
+                                <div class="col-md-5">
+                                    <label>Fecha Inicio</label>
+                                    <input type="date" id="fecha-inicio" class="form-control">
+                                </div>
+                                <div class="col-md-5">
+                                    <label>Fecha Fin</label>
+                                    <input type="date" id="fecha-fin" class="form-control">
+                                </div>
+                                <div class="col-md-2 align-self-end">
+                                    <button id="buscar-fechas" class="btn btn-primary">Buscar</button>
+                                </div>
+                            </div>
+                        </div>` : ''}
+                        <canvas id="${modalCanvasId}-canvas" width="800" height="400"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>`;
+        
+        // Agregar el modal al DOM
+        document.body.insertAdjacentHTML('beforeend', modalHTML);
+        
+        return modalCanvasId;
+    }
+
+    // Configuración de los modales para cada gráfico
+    document.addEventListener('DOMContentLoaded', function() {
+        // Lista de gráficos para generar modales
+        const charts = [
+            { id: 'graficoConsultasProveedor', title: 'Consultas por Proveedor', type: 'pie' },
+            { id: 'graficoConsultasCredencial', title: 'Consultas por Credencial', type: 'bar' },
+            { id: 'graficoConsultasDia', title: 'Consultas en los Últimos 7 Días', type: 'line' }
+        ];
+        
+        // Establecer altura fija para los contenedores de gráficos
+        document.querySelectorAll('.card.h-100 .card-body').forEach(cardBody => {
+            cardBody.style.height = '250px';
         });
-    </script>
+        
+        // Generar modal para cada gráfico
+        charts.forEach(chart => {
+            const chartElement = document.getElementById(chart.id);
+            if (chartElement) {
+                // Crear el modal para este gráfico
+                const modalCanvasId = createChartModal(chart.id, chart.title, chart.type);
+                
+                // Hacer el contenedor del gráfico clickeable
+                const cardContainer = chartElement.closest('.card');
+                if (cardContainer) {
+                    cardContainer.style.cursor = 'pointer';
+                    
+                    // Agregar un evento de clic al contenedor
+                    cardContainer.addEventListener('click', function() {
+                        // Mostrar el modal
+                        const modal = new bootstrap.Modal(document.getElementById(`modal-${chart.id}`));
+                        modal.show();
+                        
+                        // Clonar el gráfico al canvas del modal
+                        setTimeout(() => {
+                            // Si es el gráfico de consultas por día, configurar búsqueda
+                            if (chart.id === 'graficoConsultasDia') {
+                                const searchButton = document.getElementById('buscar-fechas');
+                                if (searchButton) {
+                                    searchButton.addEventListener('click', function() {
+                                        const fechaInicio = document.getElementById('fecha-inicio').value;
+                                        const fechaFin = document.getElementById('fecha-fin').value;
+
+                                        if (fechaInicio && fechaFin) {
+                                            fetch(`/consultas-por-fecha?fecha_inicio=${fechaInicio}&fecha_fin=${fechaFin}`)
+                                                .then(response => response.json())
+                                                .then(datos => {
+                                                    actualizarGraficosDia(datos);
+                                                })
+                                                .catch(error => {
+                                                    console.error('Error:', error);
+                                                    alert('Hubo un problema al buscar los datos');
+                                                });
+                                        } else {
+                                            alert('Por favor selecciona ambas fechas');
+                                        }
+                                    });
+                                }
+                            }
+
+                            // Clonar el gráfico
+                            const sourceChart = Chart.getChart(chart.id);
+                            const targetCanvas = document.getElementById(`${modalCanvasId}-canvas`);
+                            
+                            if (sourceChart && targetCanvas) {
+                                new Chart(targetCanvas, {
+                                    type: sourceChart.config.type,
+                                    data: JSON.parse(JSON.stringify(sourceChart.data)),
+                                    options: {
+                                        ...JSON.parse(JSON.stringify(sourceChart.config.options)),
+                                        responsive: true,
+                                        maintainAspectRatio: false,
+                                        plugins: {
+                                            legend: {
+                                                display: true,
+                                                position: 'top',
+                                                labels: {
+                                                    font: {
+                                                        size: 14
+                                                    }
+                                                }
+                                            },
+                                            tooltip: {
+                                                bodyFont: {
+                                                    size: 14
+                                                },
+                                                titleFont: {
+                                                    size: 16
+                                                }
+                                            }
+                                        }
+                                    }
+                                });
+                            }
+                        }, 150); // Pequeño retraso para asegurar que el modal esté visible
+                    });
+                }
+            }
+        });
+        
+        // Agregar tooltip a los cards para indicar que son clickeables
+        document.querySelectorAll('.card').forEach(card => {
+            if (card.querySelector('canvas')) {
+                // Agregar overlay con texto de ayuda
+                const overlay = document.createElement('div');
+                overlay.className = 'chart-overlay';
+                overlay.innerHTML = '<span class="overlay-text"><i class="fas fa-search-plus"></i> Click para ampliar</span>';
+                card.querySelector('.card-body').appendChild(overlay);
+            }
+        });
+    });
+</script>
 @stop
 
 @section('css')
@@ -609,10 +673,15 @@
             padding: 15px 20px;
         }
 
+
+        /*aqui*/
         .modal-body {
             padding: 20px;
             height: 500px; /* Altura fija para el modal */
         }
+        /*hasta aqui*/
+
+    
 
         /* Estilo para el botón de cerrar */
         .modal-header .btn-close {
@@ -622,6 +691,56 @@
 
         .modal-header .btn-close:hover {
             opacity: 1;
+        }
+        /* Estilos específicos para el modal de Consultas por Día */
+        #modal-graficoConsultasDia .modal-body {
+            position: relative;
+            padding: 20px;
+            height: 500px; /* Altura fija que se ajuste bien */
+        }
+
+        #modal-graficoConsultasDia .modal-body .container {
+            margin-bottom: 20px;
+        }
+
+        #modal-graficoConsultasDia .modal-body .row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        #modal-graficoConsultasDia .modal-body canvas {
+            width: 100% !important;
+            height: calc(100% - 100px) !important; /* Ajusta el espacio para los inputs */
+            max-height: 400px;
+        }
+
+        #modal-graficoConsultasDia .modal-body .form-control {
+            border-radius: 5px;
+            border: 1px solid #2873B4;
+        }
+
+        #modal-graficoConsultasDia .modal-body #buscar-fechas {
+            background-color: #2873B4;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 6px 12px;
+            margin-top: 22px;
+        }
+
+        @media (max-width: 768px) {
+            #modal-graficoConsultasDia .modal-body {
+                height: 450px;
+            }
+            
+            #modal-graficoConsultasDia .modal-body .row {
+                flex-direction: column;
+            }
+            
+            #modal-graficoConsultasDia .modal-body canvas {
+                height: calc(100% - 150px) !important;
+            }
         }
     </style>
 @stop

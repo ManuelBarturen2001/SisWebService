@@ -57,7 +57,7 @@ class MigracionesController extends Controller
 
 
     private const IV_LENGTH = 16;
-    private const ENCRYPTION_KEY = 'my32characterlongencryptionkey12';
+    private const ENCRYPTION_KEY = 'oFiC1n@Tcn0%lA$b@rtvr3Nu$pRg%njv';
 
     private $errores = [
         "400" => "Error al consumir servicio de consultas",
@@ -145,6 +145,7 @@ class MigracionesController extends Controller
                 'ip' => $this->encrypt($validated['ip']),
                 'nivelacceso' => $this->encrypt($validated['nivelacceso']),
                 'estado' => 1, // Asumiendo que nuevo usuario es activo por defecto
+                'n_consult' => 0,
                 'created_at' => Carbon::now('America/Lima'),
                 'updated_at' => Carbon::now('America/Lima'),
             ]);
@@ -362,13 +363,31 @@ class MigracionesController extends Controller
                     'idDedo_pide' => $huellas['idDedo'] ?? '',
                     'imagen_pide' => $huellas['imagen'] ?? '',
                 ];
+                $clientIP = null;
+                $clientIP = 
+                    $request->getClientIp() ??  // Método recomendado para entornos con proxies
+                    $request->header('X-Real-IP') ?? 
+                    $request->header('X-Forwarded-For') ?? 
+                    $request->ip();
+
+                Log::info('Detalles de IP Detallados', [
+                    'getClientIp()' => $request->getClientIp(),
+                    'X-Real-IP' => $request->header('X-Real-IP'),
+                    'X-Forwarded-For' => $request->header('X-Forwarded-For'),
+                    'Laravel ip()' => $request->ip(),
+                    'Servidor' => gethostname(),
+                    'IP Final' => $clientIP
+                ]);
+
                 Consulta::create([
                     'proveedor' => 'migraciones',
                     'credencial_id' => $usuarioMigraciones->id,
                     'documento_consultado' => $request->docconsulta,
                     'exitoso' => true,
-                    'codigo_respuesta' => $datosMigraciones['codRespuesta']
+                    'codigo_respuesta' => $datosMigraciones['codRespuesta'],
+                    'ip' => $clientIP
                 ]);
+
 
                 // ✅ Actualizar la cantidad de consultas en `migracionesc`
                 $usuarioMigraciones->increment('n_consult');
@@ -379,12 +398,14 @@ class MigracionesController extends Controller
                     'persona' => $persona
                 ]);
             } else {
+                Log::info($request->header('X-Forwarded-For') ?? $request->ip());
                 Consulta::create([
                     'proveedor' => 'migraciones',
                     'credencial_id' => $usuarioMigraciones->id,
                     'documento_consultado' => $request->docconsulta,
                     'exitoso' => false,
-                    'codigo_respuesta' => $datosMigraciones['codRespuesta']
+                    'codigo_respuesta' => $datosMigraciones['codRespuesta'],
+                    'ip' => $request->header('X-Forwarded-For') ?? $request->ip()
                 ]);
 
                 $usuarioMigraciones->increment('n_consult');

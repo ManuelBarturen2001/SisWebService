@@ -4,8 +4,14 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
-
+use App\Models\Proveedores as Proveedor;
+use Illuminate\Support\Facades\Log;
+use App\Models\Consulta;
+use App\Models\User; 
+use Illuminate\Support\Facades\Auth;
 class SunatController extends Controller
+
+
 {
     public function index()
     {
@@ -18,6 +24,37 @@ class SunatController extends Controller
     public function update(Request $request, string $id) {}
     public function destroy(string $id) {}
 
+    private const IV_LENGTH = 16;
+    private const ENCRYPTION_KEY = 'oFiC1n@Tcn0%lA$b@rtvr3Nu$pRg%njv';
+
+    private function encrypt($text)
+    {
+        $iv = openssl_random_pseudo_bytes(self::IV_LENGTH);
+        $encrypted = openssl_encrypt($text, 'aes-256-cbc', self::ENCRYPTION_KEY, 0, $iv);
+        return json_encode([
+            'iv' => bin2hex($iv),
+            'content' => bin2hex($encrypted)
+        ]);
+    }
+
+    private function decrypt($encryptedString)
+    {
+        try {
+            if (is_string($encryptedString) && strpos($encryptedString, '{') === 0) {
+                $data = json_decode($encryptedString, true);
+                $iv = hex2bin($data['iv']);
+                $encrypted = hex2bin($data['content']);
+                $decrypted = openssl_decrypt($encrypted, 'aes-256-cbc', self::ENCRYPTION_KEY, 0, $iv);
+                return $decrypted;
+            } else {
+                return $encryptedString;
+            }
+        } catch (\Exception $error) {
+            Log::error('Decryption error: ' . $error->getMessage());
+            throw new \Exception('Error al desencriptar los datos.');
+        }
+    }
+
     public function consultarSunat(Request $request)
     {
         $numRuc = $request->input('numRuc');
@@ -29,10 +66,35 @@ class SunatController extends Controller
                 'message' => 'RUC inválido. Debe contener 11 dígitos.'
             ], 400);
         }
-
         try {
-            // URL de la API de SUNAT
-            $url = "https://ws3.pide.gob.pe/Rest/Sunat/DatosPrincipales?numruc={$numRuc}&out=json";
+            // $usuarioId = Auth::id(); 
+            // $usuario = User::find($usuarioId);
+
+            $proveedores = Proveedor::all();
+            $proveedorSunat = $proveedores->first(fn($prov) => $this->decrypt($prov->nombre) === "sunat");
+
+            if (!$proveedorSunat) {
+                Log::error('Proveedor RENIEC no encontrado en la base de datos');
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Proveedor de RENIEC no encontrado.'
+                ], 404);
+            }
+
+            $urlSunat = $this->decrypt($proveedorSunat->url);
+
+            // Buscar el proveedor con el nombre 'sunat' para obtener la URL
+            // $proveedor = Proveedor::where('nombre', 'sunat')->first();
+
+            if (!$proveedorSunat || !$urlSunat) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'URL de SUNAT no configurada'
+                ], 404);
+            }
+
+            // Construir la URL usando la URL del proveedor
+            $url = "{$urlSunat}?numruc={$numRuc}&out=json";
 
             // Realizar la consulta a SUNAT
             $response = Http::timeout(10)->get($url);
@@ -58,7 +120,7 @@ class SunatController extends Controller
 
             $multiRef = $datosSunat['list']['multiRef'];
 
-            // Obtener datos
+            // Obtener datos (mismo código de extracción que en la versión original)
             $ddp_nombre = $multiRef['ddp_nombre']['$'] ?? '';
             $ruc = $multiRef['ddp_numruc']['$'] ?? '';
             $razon_social = $ddp_nombre;
@@ -113,13 +175,32 @@ class SunatController extends Controller
                 'esActivo_pide' => $multiRef['esActivo']['$'] ?? '',
                 'esHabido_pide' => $multiRef['esHabido']['$'] ?? '',
             ];
-
+            Consulta::create([
+                'proveedor' => 'sunat',
+                // 'credencial_id' => $usuario->google_id,
+                'documento_consultado' => $numRuc,
+                'exitoso' => true,
+                'codigo_respuesta' => $response->status(),
+                'ip' => $request->ip()
+            ]);
+            Log::info($request->ip());
             return response()->json([
                 'success' => true,
                 'message' => 'Consulta exitosa',
                 'datos' => $datos
             ], 200);
         } catch (\Exception $e) {
+            Log::info($request->ip());
+            Consulta::create([
+                'proveedor' => 'sunat',
+                // 'credencial_id' =>$usuario->google_id,
+                'documento_consultado' => $numRuc,
+                'exitoso' => false,
+                'codigo_respuesta' => $response->status(),
+                'ip' => $request->ip()
+            ]);
+
+
             return response()->json([
                 'success' => false,
                 'message' => 'Error al procesar la solicitud',

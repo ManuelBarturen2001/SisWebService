@@ -17,6 +17,7 @@ return new class extends Migration
             $table->unsignedBigInteger('credencial_id'); // ID de la credencial usada
             $table->string('documento_consultado'); // DNI o documento consultado
             $table->boolean('exitoso'); // Si la consulta fue exitosa
+            $table->string('ip')->nullable();
             $table->string('codigo_respuesta')->nullable(); // Código de respuesta
             $table->timestamps();
         });
@@ -28,7 +29,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('consultas', function (Blueprint $table) {
-            //
+            $table->dropColumn('ip');
         });
     }
 };

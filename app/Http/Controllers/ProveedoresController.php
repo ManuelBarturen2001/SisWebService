@@ -37,7 +37,7 @@ class ProveedoresController extends Controller
     public function update(Request $request, string $id) {}
     public function destroy(string $id) {}
 
-    private const ENCRYPTION_KEY = "my32characterlongencryptionkey12"; // Debe ser de 32 caracteres
+    private const ENCRYPTION_KEY = 'oFiC1n@Tcn0%lA$b@rtvr3Nu$pRg%njv'; // Debe ser de 32 caracteres
     private const IV_LENGTH = 16;
 
     // Función para encriptar

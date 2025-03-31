@@ -55,7 +55,7 @@ class ReniecController extends Controller
     
 
     private const IV_LENGTH = 16;
-    private const ENCRYPTION_KEY = 'my32characterlongencryptionkey12';
+    private const ENCRYPTION_KEY = 'oFiC1n@Tcn0%lA$b@rtvr3Nu$pRg%njv';
 
     private function encrypt($text)
     {
@@ -98,6 +98,8 @@ class ReniecController extends Controller
                 'nuDniUsuario' => $this->encrypt($request->nuDniUsuario),
                 'nuRucUsuario' => $this->encrypt($request->nuRucUsuario),
                 'password' => $this->encrypt($request->password),
+                'estado' => 1,
+                'n_consult' => 0,
                 'created_at' => Carbon::now('America/Lima'),
                 'updated_at' => Carbon::now('America/Lima')
             ]);
@@ -329,7 +331,7 @@ class ReniecController extends Controller
                         'restriccion' => 'restriccion_pide',
                         'foto' => 'foto_pide'
                     ];
-                    
+                    $clientIP = $_SERVER['REMOTE_ADDR'] ?? $request->ip();
                     foreach ($nodosAExtraer as $nodoXml => $campoJson) {
                         $xpath_query = "//w:consultarResponse/return/datosPersona/{$nodoXml}";
                         $nodes = $xpath->query($xpath_query);
@@ -343,14 +345,15 @@ class ReniecController extends Controller
                     
                     // Agregar el DNI consultado a los datos
                     $datosPersona['dni'] = $request->nuDniConsulta;
-                    
+                    Log::info($request->ip());
                     Log::info("Consulta RENIEC exitosa para DNI: " . $request->nuDniConsulta);
                     Consulta::create([
                         'proveedor' => 'reniec',
                         'credencial_id' => $usuarioReniec->id,
                         'documento_consultado' => $request->nuDniConsulta,
                         'exitoso' => true,
-                        'codigo_respuesta' => $codigoResultado
+                        'codigo_respuesta' => $codigoResultado,
+                        'ip' => $clientIP
                     ]);
 
                     // ✅ Actualizar la cantidad de consultas en `reniec`
@@ -374,13 +377,16 @@ class ReniecController extends Controller
                         'mensaje' => $mensajeError,
                         'dni' => $request->nuDniConsulta
                     ]);
+                    Log::info($request->ip());
                     Consulta::create([
                         'proveedor' => 'reniec',
                         'credencial_id' => $usuarioReniec->id,
                         'documento_consultado' => $request->nuDniConsulta,
                         'exitoso' => false,
-                        'codigo_respuesta' => $codigoResultado
+                        'codigo_respuesta' => $codigoResultado,
+                        'ip' => $request->ip()
                     ]);
+                    Log::info($request->ip());
 
                     // ✅ Actualizar la cantidad de consultas en `reniec`
                     $usuarioReniec->increment('n_consult');

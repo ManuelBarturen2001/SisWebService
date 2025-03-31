@@ -16,7 +16,8 @@ class Consulta extends Model
         'credencial_id',
         'documento_consultado',
         'exitoso',
-        'codigo_respuesta'
+        'codigo_respuesta',
+        'ip'
     ];
     
     // Relación con Reniec

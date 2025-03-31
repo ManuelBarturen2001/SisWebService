@@ -9,28 +9,20 @@
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
 
         * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Poppins', sans-serif;
+            margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif;
         }
 
         body {
-            background-color: #f8f9fa;
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            overflow: hidden;
-            background: url('images/foto8.jpg') no-repeat center center fixed;
-            background-size: cover;
+            background-color: #f8f9fa; height: 100vh;display: flex; justify-content: center; align-items: center; overflow: hidden;background: url('images/foto8.jpg') no-repeat center center fixed;background-size: cover;
         }
 
         .container {
-            width: 100%;
+            width: 95%;
             max-width: 1200px;
-            height: 600px;
+            height: auto;
+            min-height: 600px;
             display: flex;
+            flex-direction: row;
             border-radius: 20px;
             box-shadow: 0 15px 35px rgba(50, 50, 93, 0.1), 0 5px 15px rgba(0, 0, 0, 0.07);
             overflow: hidden;
@@ -296,6 +288,129 @@
             color: #94a3b8;
             font-weight: 500;
         }
+
+        .alert {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            border-radius: 5px;
+            color: #721c24;
+            width: 100%;
+            max-width: 300px;
+        }
+
+        .alert ul {
+            list-style-type: none;
+            padding-left: 10px;
+        }
+
+        .alert-list {
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        /* Estilos responsivos para dispositivos móviles y tablets */
+        @media only screen and (max-width: 1024px) {
+            .container {
+                width: 90%;
+                height: auto;
+            }
+
+            .knowledge-title {
+                font-size: 32px;
+            }
+        }
+
+        @media only screen and (max-width: 768px) {
+            .container {
+                flex-direction: column;
+                height: auto;
+                min-height: auto;
+                width: 90%;
+                max-height: 90vh;
+                overflow-y: auto;
+            }
+
+            .knowledge-wall {
+                width: 100%;
+                padding: 30px 20px;
+                order: 1;
+                min-height: 200px;
+            }
+
+            .login-side {
+                width: 100%;
+                padding: 30px 20px;
+                order: 2;
+            }
+
+            .knowledge-title {
+                font-size: 28px;
+                margin-top: 10px;
+            }
+
+            .card-reader {
+                width: 100%;
+                max-width: 325px;
+                height: 250px;
+            }
+
+            .floating-element {
+                transform: scale(0.8);
+            }
+
+            .welcome-text {
+                margin-bottom: 30px;
+                font-size: 26px;
+            }
+
+            .university-name {
+                position: relative;
+                margin-top: 30px;
+                bottom: auto;
+            }
+        }
+
+        @media only screen and (max-width: 480px) {
+            .container {
+                width: 95%;
+                border-radius: 15px;
+            }
+
+            .knowledge-wall {
+                padding: 20px 15px;
+                min-height: 150px;
+            }
+
+            .knowledge-title {
+                font-size: 22px;
+                margin-bottom: 10px;
+            }
+
+            .card-reader {
+                height: 220px;
+            }
+
+            .welcome-text {
+                font-size: 22px;
+                margin-bottom: 20px;
+            }
+
+            .scan-button {
+                width: 190px;
+                height: 40px;
+                font-size: 14px;
+            }
+
+            .scan-button span img {
+                width: 16px;
+            }
+
+            .floating-elements {
+                display: none;
+            }
+        }
     </style>
 </head>
 
@@ -336,7 +451,7 @@
                 </div>
             </div>
 
-            <h1 class="knowledge-title">Sistema de Interoperabilidad PIDE - SISGEDO</h1>
+            <h1 class="knowledge-title">Consultas de Interoperabilidad Digital de Estado - UNPRG</h1>
         </div>
 
         <div class="login-side">
@@ -369,14 +484,6 @@
                         </ul>
                     </div>
                 @endif
-
-                {{-- <button class="scan-button" id="scan-button">
-                    <span>
-                        <img width="20px" style="margin-bottom:3px; margin-right:5px" alt="Google sign-in"
-                            src="assets/google-color-icon.svg">
-                        Correo electrónico
-                    </span>
-                </button> --}}
                 <div class="card-image" id="card-image"></div>
             </div>
 
