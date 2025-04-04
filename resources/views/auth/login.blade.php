@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Gestión de Usuarios UNPRG</title>
+    <title>Consultas de Interoperabilidad Digital del Estado - UNPRG</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
 
@@ -451,7 +451,7 @@
                 </div>
             </div>
 
-            <h1 class="knowledge-title">Consultas de Interoperabilidad Digital de Estado - UNPRG</h1>
+            <h1 class="knowledge-title">Consultas de Interoperabilidad Digital del Estado - UNPRG</h1>
         </div>
 
         <div class="login-side">

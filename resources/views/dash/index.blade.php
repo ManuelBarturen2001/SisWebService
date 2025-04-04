@@ -1,6 +1,6 @@
 @extends('adminlte::page')
 
-@section('title', 'Home')
+@section('title', 'Dashboard')
 
 @section('content_header')
     <h1 class="custom-headers text-center w-100">BIENVENIDO AL SISTEMA</h1>
@@ -76,8 +76,8 @@
             <!-- Consultas por Proveedor -->
             <div class="col-lg-4 col-md-6 mb-4">
                 <div class="card shadow h-100">
-                    <div class="card-header bg-primary text-white">
-                        <i class="fas fa-database"></i> Consultas por Proveedor
+                    <div class="card-header text-white" style="background-color: #2873B4">
+                        <i class="fas fa-database"></i>   Consultas por Proveedor
                     </div>
                     <div class="card-body d-flex align-items-center justify-content-center">
                         <div style="width: 100%; height: 100%; position: relative;">
@@ -240,7 +240,7 @@
             datasets: [{
                 label: 'Total Consultas',
                 data: dataProveedores,
-                backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF']
+                backgroundColor: ['#FF6384', '#2873B4', '#FFCE56', '#4BC0C0', '#9966FF']
             }]
         },
         options: getChartOptions()
@@ -254,7 +254,7 @@
             datasets: [{
                 label: 'Total Consultas',
                 data: dataCredenciales,
-                backgroundColor: '#42A5F5'
+                backgroundColor: '#2873B4'
             }]
         },
         options: {
